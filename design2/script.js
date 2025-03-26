@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const screenWidth = window.innerWidth;
         const screenCenter = screenWidth / 2;
 
-        return (screenWidth/* - 50*/); // 50px is the assumed half-width of the menu item container
+        return (screenCenter/* - 50*/); // 50px is the assumed half-width of the menu item container
     }
 
     // Function to create circular text
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Position based on angle and radius, including the dynamic offset
                 const rad = angle * Math.PI / 180;
-                const x = settings.radius * Math.cos(rad) + dynamicOffsetX;  // Apply dynamic offsetX
+                const x = settings.radius * Math.cos(rad);// - dynamicOffsetX;  // Apply dynamic offsetX
                 const y = settings.radius * Math.sin(rad);  // No offsetY
 
                 letterSpan.style.position = 'absolute';
