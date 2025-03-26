@@ -1,0 +1,331 @@
+/* Custom font declarations */
+@font-face {
+    font-family: 'Clutchee';
+    src: url('../fonts/clutchee.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Xenophone';
+    src: url('../fonts/xeno.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Reset defaults and control top spacing */
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: #777;
+    color: #333;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Xenophone', Arial, sans-serif;
+}
+
+.container {
+    position: relative;
+    min-height: 100vh;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+header {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    width: 100%;
+    background-color: #777;
+    color: white;
+    z-index: 10;
+    line-height: 0.5;
+}
+
+    header h1 {
+        font-family: 'Clutchee', Arial, sans-serif;
+        font-size: 15rem;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        font-weight: normal;
+        color: #b5b5b5;
+        margin: 0;
+        padding: 0;
+        margin-bottom: 2.5rem;
+        line-height: 0.75;
+    }
+
+.header-text {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    color: #b5b5b5;
+    line-height: 1;
+}
+
+/* The rest of your CSS remains unchanged */
+
+.circle-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.circular-menu {
+    position: relative;
+    /* Base size control */
+    --base-circle-size: 1250px;
+    --circle-shrink: 100px; /* Amount each circle shrinks by */
+
+    width: var(--base-circle-size);
+    height: var(--base-circle-size);
+    max-width: 90vw;
+    max-height: 90vw;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.circle-layer {
+    position: absolute;
+    border-radius: 50%;
+    transition: all 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* about */
+.layer-1 {
+    background-color: rgba(177, 216, 216, 1);
+    width: calc(var(--base-circle-size));
+    height: calc(var(--base-circle-size));
+    z-index: 1;
+    top: 0;
+    left: 0;
+}
+
+/* submissions */
+.layer-2 {
+    background-color: rgba(177, 200, 216, 1);
+    width: calc(var(--base-circle-size) - var(--circle-shrink));
+    height: calc(var(--base-circle-size) - var(--circle-shrink));
+    z-index: 2;
+    top: calc(var(--circle-shrink) / 2);
+    left: 0;
+}
+
+/* ethics */
+.layer-3 {
+    background-color: rgba(177, 184, 216, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 2));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 2));
+    z-index: 3;
+    top: calc(var(--circle-shrink));
+    left: calc(var(--circle-shrink));
+}
+
+/* team */
+.layer-4 {
+    background-color: rgba(189, 170, 202, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 3));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 3));
+    z-index: 4;
+    top: calc((var(--circle-shrink) * 1.5));
+    left: calc(var(--circle-shrink));
+}
+
+/* announcements */
+.layer-5 {
+    background-color: rgba(203, 172, 198, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 4));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 4));
+    z-index: 5;
+    top: calc(var(--circle-shrink) * 2);
+    left: calc(var(--circle-shrink) * 2);
+}
+
+/* Archives */
+.layer-6 {
+    background-color: rgba(221, 180, 184, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 5));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 5));
+    z-index: 6;
+    top: calc((var(--circle-shrink) * 2.5));
+    left: calc(var(--circle-shrink) * 2);
+}
+
+/* Current */
+.layer-7 {
+    background-color: rgba(227, 200, 195, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 6));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 6));
+    z-index: 7;
+    top: calc(var(--circle-shrink) * 3);
+    left: calc(var(--circle-shrink) * 3);
+}
+.layer-8 {
+    background-color: rgba(240, 255, 220, 0.7); /* Choose a color that fits your design */
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 7));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 7));
+    z-index: 8;
+    top: calc(var(--circle-shrink) * 3.5);
+    left: calc(var(--circle-shrink) * 3);
+}
+
+/* Menu item base styling */
+.menu-item {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: #555;
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    text-transform: lowercase;
+    cursor: pointer;
+    z-index: 10;
+    transition: opacity 0.5s;
+    pointer-events: all;
+}
+
+    .menu-item span {
+        position: absolute;
+        transform-origin: center;
+        font-family: 'Xenophone', Arial, sans-serif;
+    }
+
+/* Animation for menu items */
+.circular-menu.submenu-view .menu-item {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Submenu container */
+.submenu-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s;
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+    .submenu-container.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+.back-button {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    color: #555;
+    cursor: pointer;
+    z-index: 20;
+}
+
+/* Footer styling */
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #000;
+    color: #808080;
+    padding: 1rem;
+    font-size: 0.8rem;
+    text-align: left;
+}
+
+.contact-info {
+    margin-top: 0.5rem;
+}
+
+/* Animation classes */
+.circular-menu.submenu-view .layer-1 {
+    transform: scale(1.1);
+}
+
+.circular-menu.submenu-view .layer-2 {
+    transform: scale(1.2);
+}
+
+.circular-menu.submenu-view .layer-3 {
+    transform: scale(1.3);
+}
+
+.circular-menu.submenu-view .layer-4 {
+    transform: scale(1.4);
+}
+
+.circular-menu.submenu-view .layer-5 {
+    transform: scale(1.5);
+}
+
+.circular-menu.submenu-view .layer-6 {
+    transform: scale(1.6);
+}
+
+.circular-menu.submenu-view .layer-7 {
+    transform: scale(1.7);
+}
+.circular-menu.submenu-view .layer-8 {
+    transform: scale(1.8);
+}
+
+.circular-menu.submenu-view .menu-item {
+    opacity: 0;
+    visibility: hidden;
+}
+.control-panel {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 300px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    z-index: 100;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.slider-group {
+    margin-bottom: 10px;
+}
+
+    .slider-group label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .slider-group input {
+        width: 100%;
+    }
