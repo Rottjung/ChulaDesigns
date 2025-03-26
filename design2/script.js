@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const screenWidth = window.innerWidth;
         const screenCenter = screenWidth / 2;
 
-        return (screenCenter - 50); // 50px is the assumed half-width of the menu item container
+        return (screenCenter/* - 50*/); // 50px is the assumed half-width of the menu item container
     }
 
     // Function to create circular text
