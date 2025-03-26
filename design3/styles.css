@@ -96,7 +96,7 @@ footer {
     }
 
     nav {
-        flex-direction: column; /* Stack buttons vertically */
+        flex-direction: row; /* Stack buttons vertically */
         gap: 10px;
     }
 
