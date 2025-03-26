@@ -190,9 +190,45 @@ header {
     top: calc(var(--circle-shrink) * 3.5);
     left: calc(var(--circle-shrink) * 3);
 }
+/* Adjust the menu items to align the text properly */
+.menu-item {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: #555;
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    text-transform: lowercase;
+    cursor: pointer;
+    z-index: 10;
+    transition: opacity 0.5s;
+    pointer-events: all;
+    display: flex;
+    justify-content: center; /* Horizontally center */
+    align-items: center; /* Vertically center */
+}
+
+    /* Fine-tune the positioning of the text (span) */
+    .menu-item span {
+        font-family: 'Xenophone', Arial, sans-serif;
+        position: relative; /* Allow better control */
+        transform-origin: center;
+        transition: transform 0.5s ease-in-out; /* Optional, if you want a smooth transition effect */
+    }
+
+/* Optional: Add a little more control if needed for mobile */
+@media (max-width: 768px) {
+    .menu-item {
+        font-size: 1.4rem; /* Adjust font size for smaller screens */
+    }
+
+        .menu-item span {
+            transform: scale(0.9); /* Scale down text if needed */
+        }
+}
 
 /* Menu item base styling */
-.menu-item {
+/*.menu-item {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -210,7 +246,7 @@ header {
         position: absolute;
         transform-origin: center;
         font-family: 'Xenophone', Arial, sans-serif;
-    }
+    }*/
 
 /* Animation for menu items */
 .circular-menu.submenu-view .menu-item {
