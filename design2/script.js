@@ -17,8 +17,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let letterSpacing = 4;
 
+    // Function to calculate dynamic offsetX based on screen resolution
+    function calculateDynamicOffset() {
+        const screenWidth = window.innerWidth;
+        const screenCenter = screenWidth / 2;
+
+        return (screenCenter - 50); // 50px is the assumed half-width of the menu item container
+    }
+
     // Function to create circular text
     function createCircularText() {
+        const dynamicOffsetX = calculateDynamicOffset(); // Get dynamic offsetX
+
         menuItems.forEach(item => {
             const text = item.getAttribute('data-text');
             const itemClass = item.classList[1]; // e.g., 'item-about'
@@ -37,10 +47,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 const letterSpan = document.createElement('span');
                 letterSpan.innerText = text[i];
 
-                // Position based on angle and radius
+                // Position based on angle and radius, including the dynamic offset
                 const rad = angle * Math.PI / 180;
-                const x = settings.radius * Math.cos(rad);
-                const y = settings.radius * Math.sin(rad);
+                const x = settings.radius * Math.cos(rad) + dynamicOffsetX;  // Apply dynamic offsetX
+                const y = settings.radius * Math.sin(rad);  // No offsetY
 
                 letterSpan.style.position = 'absolute';
                 letterSpan.style.transformOrigin = 'center';
@@ -55,6 +65,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Call the circular text function initially
     createCircularText();
+
+    // Recalculate offsets when the window is resized
+    window.addEventListener('resize', function () {
+        createCircularText();
+    });
 
     // Slider code commented out
     // Set up slider events
