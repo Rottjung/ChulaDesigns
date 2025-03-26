@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Journal Archive with Connections</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .ui-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            z-index: 100;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        select {
+            padding: 5px;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        #debug {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+            z-index: 100;
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 40px;
+            left: 10px;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="ui-container">
+        <h1>3D Journal Archive</h1>
+        <select id="yearFilter">
+            <option value="all">All Years</option>
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+        </select>
+    </div>
+
+    <div id="instructions">
+        Mouse Controls: Left-click + drag to rotate | Right-click + drag to pan | Scroll to zoom
+    </div>
+
+    <div id="debug"></div>
+
+    <!-- Load Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Use a specific version of OrbitControls that's known to work with the Three.js version -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Add GSAP for smooth animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+
+    <script>
+        // Debug helper
+        const debug = document.getElementById('debug');
+        function log(msg) {
+            debug.innerHTML += msg + '<br>';
+        }
+
+        try {
+            // Check if Three.js loaded properly
+            if (typeof THREE === 'undefined') {
+                log('ERROR: THREE is undefined. Three.js failed to load.');
+                throw new Error('Three.js failed to load');
+            }
+
+            log('Three.js loaded successfully');
+
+            // Initialize the scene
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            // Add some ambient light
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            // Add directional light
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+
+            // Set renderer with alpha for transparency
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setClearColor(0x000000);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            log('Renderer created and added to DOM');
+
+            // Setup camera position
+            camera.position.z = 50;
+
+            // Alternative way of checking for OrbitControls
+            if (!THREE.OrbitControls) {
+                log('WARNING: THREE.OrbitControls not found. Creating a simple camera rotation.');
+                // Create a simple rotation animation as fallback
+                function animateCamera() {
+                    const radius = 50;
+                    const speed = 0.001;
+                    camera.position.x = Math.sin(Date.now() * speed) * radius;
+                    camera.position.z = Math.cos(Date.now() * speed) * radius;
+                    camera.lookAt(scene.position);
+                }
+                // We'll call this in the animate function
+            } else {
+                log('OrbitControls loaded successfully');
+            }
+
+            // Setup OrbitControls only if available
+            let controls;
+            if (THREE.OrbitControls) {
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.screenSpacePanning = false;
+                controls.minDistance = 10;
+                controls.maxDistance = 100;
+                log('Camera and OrbitControls set up');
+            }
+
+            // Sample article data with additional similarity metrics
+            const articles = [
+                { title: "Article 1", year: 2020, id: 1, keywords: ["machine learning", "neural networks", "ai"] },
+                { title: "Article 2", year: 2021, id: 2, keywords: ["neural networks", "deep learning", "computer vision"] },
+                { title: "Article 3", year: 2022, id: 3, keywords: ["computer vision", "image recognition", "cnn"] },
+                { title: "Article 4", year: 2023, id: 4, keywords: ["language models", "nlp", "transformers"] },
+                { title: "Article 5", year: 2020, id: 5, keywords: ["machine learning", "statistics", "data science"] },
+                { title: "Article 6", year: 2021, id: 6, keywords: ["nlp", "transformers", "bert"] },
+                { title: "Article 7", year: 2022, id: 7, keywords: ["image recognition", "object detection", "computer vision"] },
+                { title: "Article 8", year: 2023, id: 8, keywords: ["transformers", "gpt", "large language models"] },
+                { title: "Article 9", year: 2020, id: 9, keywords: ["data science", "visualization", "statistics"] },
+                { title: "Article 10", year: 2021, id: 10, keywords: ["reinforcement learning", "ai", "deep learning"] },
+                { title: "Article 11", year: 2022, id: 11, keywords: ["robotics", "reinforcement learning", "control systems"] },
+                { title: "Article 12", year: 2023, id: 12, keywords: ["large language models", "gpt", "nlp"] }
+            ];
+
+            // Calculate similarity between two articles based on shared keywords
+            function calculateSimilarity(article1, article2) {
+                const keywords1 = new Set(article1.keywords);
+                const keywords2 = new Set(article2.keywords);
+
+                let intersection = 0;
+                for (const keyword of keywords1) {
+                    if (keywords2.has(keyword)) {
+                        intersection++;
+                    }
+                }
+
+                // Jaccard similarity: intersection / union
+                const union = keywords1.size + keywords2.size - intersection;
+                return intersection / union;
+            }
+
+            // Create similarity matrix
+            const similarities = {};
+            for (let i = 0; i < articles.length; i++) {
+                for (let j = i + 1; j < articles.length; j++) {
+                    const similarity = calculateSimilarity(articles[i], articles[j]);
+                    const key = `${articles[i].id}-${articles[j].id}`;
+                    similarities[key] = similarity;
+                }
+            }
+
+            // Create spheres for each article
+            const geometry = new THREE.SphereGeometry(1, 32, 32); // Start with smaller spheres
+            // Track spheres by year for easier clustering
+            const spheresByYear = {};
+            const allSpheres = [];
+
+            // Store original positions for reset
+            const originalPositions = {};
+
+            // Group to hold all the connection lines
+            const connectionLines = new THREE.Group();
+            scene.add(connectionLines);
+
+            articles.forEach((article, index) => {
+                // Create spheres with different colors based on year
+                const colors = {
+                    2020: 0x44aa88,
+                    2021: 0x8844aa,
+                    2022: 0xaa8844,
+                    2023: 0xaa4488
+                };
+
+                const material = new THREE.MeshPhongMaterial({
+                    color: colors[article.year] || 0xffffff,
+                    shininess: 100,
+                    specular: 0x111111
+                });
+
+                const sphere = new THREE.Mesh(geometry, material);
+
+                // Position in a more ordered way
+                const angle = (index / articles.length) * Math.PI * 2;
+                const radius = 25;
+                const x = Math.cos(angle) * radius;
+                const y = (Math.random() - 0.5) * 20;
+                const z = Math.sin(angle) * radius;
+
+                sphere.position.set(x, y, z);
+                sphere.scale.set(1, 1, 1); // Initialize scale
+
+                // Store original position
+                originalPositions[article.id] = { x, y, z };
+
+                // Track sphere by year
+                if (!spheresByYear[article.year]) {
+                    spheresByYear[article.year] = [];
+                }
+                spheresByYear[article.year].push(sphere);
+                allSpheres.push(sphere);
+
+                sphere.userData = { article };
+                scene.add(sphere);
+                log(`Added sphere for ${article.title}`);
+            });
+
+            // Create connections between articles
+            function createConnections() {
+                // Clear previous connections
+                while (connectionLines.children.length > 0) {
+                    connectionLines.remove(connectionLines.children[0]);
+                }
+
+                // Set a threshold for showing connections
+                const similarityThreshold = 0.1;
+
+                // Create new connections
+                for (let i = 0; i < allSpheres.length; i++) {
+                    for (let j = i + 1; j < allSpheres.length; j++) {
+                        const sphere1 = allSpheres[i];
+                        const sphere2 = allSpheres[j];
+
+                        const id1 = sphere1.userData.article.id;
+                        const id2 = sphere2.userData.article.id;
+
+                        const key = `${Math.min(id1, id2)}-${Math.max(id1, id2)}`;
+                        const similarity = similarities[key] || 0;
+
+                        if (similarity > similarityThreshold) {
+                            // Create line geometry between the two spheres
+                            const points = [
+                                sphere1.position.clone(),
+                                sphere2.position.clone()
+                            ];
+
+                            const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+
+                            // Line width is proportional to similarity (maxed at 5)
+                            const lineWidth = similarity * 5;
+
+                            // Color is based on the average of the two sphere colors
+                            const color1 = sphere1.material.color.clone();
+                            const color2 = sphere2.material.color.clone();
+                            const avgColor = new THREE.Color(
+                                (color1.r + color2.r) / 2,
+                                (color1.g + color2.g) / 2,
+                                (color1.b + color2.b) / 2
+                            );
+
+                            const lineMaterial = new THREE.LineBasicMaterial({
+                                color: avgColor,
+                                transparent: true,
+                                opacity: similarity, // More similar = more visible
+                                linewidth: 1 // Note: LineBasicMaterial doesn't support variable line width in WebGL
+                            });
+
+                            const line = new THREE.Line(lineGeometry, lineMaterial);
+                            line.userData = {
+                                sphere1Id: id1,
+                                sphere2Id: id2,
+                                similarity: similarity,
+                                updatePositions: function () {
+                                    // Update line positions when spheres move
+                                    const points = [
+                                        sphere1.position.clone(),
+                                        sphere2.position.clone()
+                                    ];
+                                    line.geometry.setFromPoints(points);
+                                    line.geometry.attributes.position.needsUpdate = true;
+                                }
+                            };
+
+                            connectionLines.add(line);
+                        }
+                    }
+                }
+
+                log(`Created ${connectionLines.children.length} connections`);
+            }
+
+            // Create initial connections
+            createConnections();
+
+            // Function to arrange spheres based on selected year
+            function highlightSpheresByYear(year) {
+                if (year === 'all') {
+                    // Reset all spheres to original positions and scale
+                    allSpheres.forEach(sphere => {
+                        const originalPos = originalPositions[sphere.userData.article.id];
+                        gsap.to(sphere.position, {
+                            x: originalPos.x,
+                            y: originalPos.y,
+                            z: originalPos.z,
+                            duration: 1.5,
+                            ease: "power2.out"
+                        });
+
+                        // Reset scale to normal
+                        gsap.to(sphere.scale, {
+                            x: 1,
+                            y: 1,
+                            z: 1,
+                            duration: 1,
+                            ease: "power2.out"
+                        });
+                    });
+                } else {
+                    // Parse the selected year as a number
+                    const selectedYear = parseInt(year);
+
+                    // Move the selected year's spheres to the front and make them larger
+                    allSpheres.forEach(sphere => {
+                        const sphereYear = sphere.userData.article.year;
+                        const originalPos = originalPositions[sphere.userData.article.id];
+
+                        if (sphereYear === selectedYear) {
+                            // Move toward camera and make larger
+                            gsap.to(sphere.position, {
+                                x: originalPos.x * 0.7, // Bring closer to center
+                                y: originalPos.y * 0.7,
+                                z: originalPos.z * 0.7 - 15, // Move toward camera
+                                duration: 1.5,
+                                ease: "power2.out"
+                            });
+
+                            // Make larger
+                            gsap.to(sphere.scale, {
+                                x: 2.5,
+                                y: 2.5,
+                                z: 2.5,
+                                duration: 1,
+                                ease: "power2.out"
+                            });
+                        } else {
+                            // Move other spheres back and make smaller
+                            gsap.to(sphere.position, {
+                                x: originalPos.x,
+                                y: originalPos.y,
+                                z: originalPos.z,
+                                duration: 1.5,
+                                ease: "power2.out"
+                            });
+
+                            // Make smaller
+                            gsap.to(sphere.scale, {
+                                x: 0.5,
+                                y: 0.5,
+                                z: 0.5,
+                                duration: 1,
+                                ease: "power2.out"
+                            });
+                        }
+                    });
+                }
+
+                // Update connections after movement
+                setTimeout(updateConnections, 100);
+                setTimeout(updateConnections, 500);
+                setTimeout(updateConnections, 1000);
+                setTimeout(updateConnections, 1500);
+            }
+
+            // Function to update connection positions
+            function updateConnections() {
+                connectionLines.children.forEach(line => {
+                    if (line.userData && line.userData.updatePositions) {
+                        line.userData.updatePositions();
+                    }
+                });
+            }
+
+            // Make a simple raycaster for clicks
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            window.addEventListener('click', (event) => {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(allSpheres);
+
+                if (intersects.length > 0) {
+                    const clickedObject = intersects[0].object;
+                    if (clickedObject.userData && clickedObject.userData.article) {
+                        alert(`Article: ${clickedObject.userData.article.title} (${clickedObject.userData.article.year})\nKeywords: ${clickedObject.userData.article.keywords.join(", ")}`);
+                    }
+                }
+            });
+
+            // Filter by year with highlighting
+            document.getElementById('yearFilter').addEventListener('change', (e) => {
+                const year = e.target.value;
+                highlightSpheresByYear(year);
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // If OrbitControls is available, update it
+                if (controls) {
+                    controls.update();
+                } else {
+                    // Use simple camera rotation as fallback
+                    animateCamera();
+                }
+
+                renderer.render(scene, camera);
+            }
+
+            log('Starting animation loop');
+            animate();
+
+        } catch (error) {
+            log('ERROR: ' + error.message);
+            console.error(error);
+        }
+    </script>
+</body>
+</html>
