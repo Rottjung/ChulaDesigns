@@ -33,17 +33,14 @@ body {
     font-size: 10vw;
     color: rgba(255, 255, 255, 0.1);
     text-transform: uppercase;
-    align-items: stretch;
     text-align: justify;
-    justify-content: stretch;
-    text-transform: uppercase;
     z-index: -1;
 }
 
 header h1 {
     font-family: 'Dubtronic';
     font-size: 20rem;
-    margin: 0px 0;
+    margin: 0;
     color: rgba(128, 128, 128, 0.75);
 }
 
@@ -88,3 +85,51 @@ footer {
     text-align: left;
 }
 
+/* Media Queries for Mobile and Tablet */
+@media screen and (max-width: 768px) {
+    .background-text {
+        font-size: 20vw; /* Smaller text for mobile */
+    }
+
+    header h1 {
+        font-size: 8rem; /* Smaller header font size for mobile */
+    }
+
+    nav {
+        flex-direction: column; /* Stack buttons vertically */
+        gap: 10px;
+    }
+
+        nav img {
+            height: 40px; /* Smaller images for mobile */
+        }
+
+    .content {
+        padding: 15px;
+        max-width: 90%; /* Reduce content width on smaller screens */
+    }
+
+    footer {
+        font-size: 0.7rem; /* Smaller footer text for mobile */
+    }
+}
+
+/* Media Queries for Portrait Mobile */
+@media screen and (max-width: 480px) {
+    .background-text {
+        font-size: 30vw; /* Even smaller text for very small screens */
+    }
+
+    header h1 {
+        font-size: 6rem; /* Adjust for very small screens */
+    }
+
+    .content {
+        padding: 10px;
+        max-width: 100%; /* Full-width content for smaller screens */
+    }
+
+    footer {
+        font-size: 0.6rem; /* Further reduce footer text size */
+    }
+}
