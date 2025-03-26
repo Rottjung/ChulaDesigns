@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Position based on angle and radius, including the dynamic offset
                 const rad = angle * Math.PI / 180;
-                const x = settings.radius * Math.cos(rad) - dynamicOffsetX;  // Apply dynamic offsetX
+                const x = settings.radius * Math.cos(rad) + dynamicOffsetX;  // Apply dynamic offsetX
                 const y = settings.radius * Math.sin(rad);  // No offsetY
 
                 letterSpan.style.position = 'absolute';
