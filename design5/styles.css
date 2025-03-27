@@ -20,8 +20,15 @@ html, body {
 }
 
 header {
-    padding: 20px 0;
-    color: #3e6b48;
+    text-align: right; /* Aligns text to the right */
+    padding: 20px;
+    position: relative;
+}
+
+.header-container {
+    display: inline-block; /* Allows it to align right properly */
+    text-align: right;
+    padding-right: 20px;
 }
 
 h1 {
@@ -32,14 +39,24 @@ h1 {
 
 p {
     font-size: 16px;
-    margin-top: 5px;
+    margin-bottom: 5px;
+    position: relative;
+    z-index: 2; /* Ensures the text stays above the line */
+    background: white; /* Background to avoid text blending into line */
+    display: inline-block; /* Helps with background positioning */
+    padding: 0 10px;
 }
+
 .green-line {
-    width: 80%; /* Adjust width as needed */
-    height: 5px; /* Thickness of the line */
+    width: 100%; /* Full width of the page */
+    height: 10px; /* Make it thicker */
     background-color: #3e6b48; /* Green color */
-    margin: 10px auto; /* Center it and add spacing */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
 }
+
 nav {
     display: flex;
     justify-content: center;
