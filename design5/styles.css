@@ -43,14 +43,14 @@ p {
     margin-bottom: 5px;
     position: relative;
     z-index: 2; /* Ensures the text stays above the line */
-    background: white; /* Background to avoid text blending into line */
+    background: #3e6b48; /* Background to avoid text blending into line */
     display: inline-block; /* Helps with background positioning */
     padding: 0 10px;
 }
 
 .green-line {
     width: 100%; /* Full width of the page */
-    height: 10px; /* Make it thicker */
+    height: 33px; /* Make it thicker */
     background-color: #3e6b48; /* Green color */
     position: absolute;
     bottom: 0;
