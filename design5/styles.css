@@ -42,6 +42,7 @@ p {
     height: 75px; /* Thickness of the line */
     background-color: #3e6b48; /* Green color */
     margin: 10px auto; /* Center it and add spacing */
+    top: -50px;
 }
 nav {
     display: flex;
