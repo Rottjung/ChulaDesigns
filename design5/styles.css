@@ -36,6 +36,7 @@ p {
     margin-top: 5px;
     text-align: left;
     color: #f8a9c8;
+    z-index:3;
 }
 .green-line {
     width: 100%;
