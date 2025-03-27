@@ -50,7 +50,7 @@ p {
 
 .green-line {
     width: 100%; /* Full width of the page */
-    height: 50px; /* Make it thicker */
+    height: 100px; /* Make it thicker */
     background-color: #3e6b48; /* Green color */
     position: absolute;
     bottom: 0;
