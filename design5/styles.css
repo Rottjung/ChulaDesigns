@@ -50,7 +50,7 @@ p {
 
 .green-line {
     width: 100%; /* Full width of the page */
-    height: 100px; /* Make it thicker */
+    height: 75px; /* Make it thicker */
     background-color: #3e6b48; /* Green color */
     position: absolute;
     bottom: 0;
@@ -75,7 +75,7 @@ nav {
     nav img {
         width: auto;
         height: 50px;
-        filter: invert(46%) sepia(25%) saturate(500%) hue-rotate(320deg) brightness(90%) contrast(85%);
+        filter: invert(46%) sepia(25%) saturate(500%) hue-rotate(120deg) brightness(90%) contrast(85%);
     }
 
 .content {
