@@ -75,7 +75,7 @@ nav {
     nav img {
         width: auto;
         height: 50px;
-        filter: invert(46%) sepia(25%) saturate(500%) hue-rotate(120deg) brightness(90%) contrast(85%);
+        filter: invert(46%) sepia(25%) saturate(500%) hue-rotate(140deg) brightness(90%) contrast(85%);
     }
 
 .content {
