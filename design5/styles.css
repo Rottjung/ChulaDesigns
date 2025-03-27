@@ -38,7 +38,7 @@ p {
     margin-top: 5px;
     text-align: left;
     color: #f8a9c8;
-    top: -120px; /* Moves it up */
+    top: -75px; /* Moves it up */
     z-index: 10;
 }
 .green-line {
