@@ -39,13 +39,12 @@ h1 {
 }
 
 p {
-    font-size: 16px;
+    font-size: 24px;
     margin-bottom: 5px;
     position: relative;
     z-index: 2; /* Ensures the text stays above the line */
-    background: #3e6b48; /* Background to avoid text blending into line */
-    display: inline-block; /* Helps with background positioning */
     padding: 0 10px;
+    color: #f8a9c8;
 }
 
 .green-line {
