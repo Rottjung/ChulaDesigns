@@ -38,11 +38,11 @@ p {
     color: #f8a9c8;
 }
 .green-line {
-    width: 100%; /* Adjust width as needed */
-    height: 75px; /* Thickness of the line */
+    width: 100%;
+    height: 75px; /* Adjust thickness */
     background-color: #3e6b48; /* Green color */
-    margin: 10px auto; /* Center it and add spacing */
-    top: -50px;
+    position: relative; /* Allows top positioning */
+    top: -50px; /* Moves it up */
 }
 nav {
     display: flex;
