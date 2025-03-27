@@ -42,9 +42,9 @@ p {
     width: 100%;
     height: 75px; /* Adjust thickness */
     background-color: #3e6b48; /* Green color */
-    position: relative; /* Allows top positioning */
+    position: absolute; /* Allows top positioning */
     top: -50px; /* Moves it up */
-    z-index:1;
+    z-index: 1;
 }
 nav {
     display: flex;
