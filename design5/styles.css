@@ -19,16 +19,9 @@ html, body {
     flex-direction: column;
 }
 
-/*header {
-    padding: 20px 0;
-    color: #3e6b48;
-}*/
 header {
     padding: 20px 0;
     color: #3e6b48;
-    text-align: right; /* Align header text to the right */
-    position: relative;
-    border-bottom: 8px solid #3e6b48; /* Thick green line */
 }
 
 h1 {
@@ -37,22 +30,13 @@ h1 {
     text-align:right;
     margin: 0;
 }
-p {
-    font-size: 16px;
-    margin-top: 5px;
-    position: relative;
-    top: -10px; /* Move text up so it overlaps the line slightly */
-    background-color: white; /* Optional: If you want to ensure readability */
-    display: inline-block; /* Makes the background wrap only the text */
-    padding: 2px 10px; /* Optional: Add padding for better spacing */
-}
 
-/*p {
+p {
     font-size: 16px;
     margin-top: 5px;
     text-align: left;
     color: #f8a9c8;
-}*/
+}
 .green-line {
     width: 100%; /* Adjust width as needed */
     height: 75px; /* Thickness of the line */
