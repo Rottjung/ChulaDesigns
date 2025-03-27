@@ -17,6 +17,7 @@ html, body {
     font-family: 'Blinker', sans-serif;
     display: flex;
     flex-direction: column;
+    z-index: 0;
 }
 
 header {
@@ -36,7 +37,7 @@ p {
     margin-top: 5px;
     text-align: left;
     color: #f8a9c8;
-    z-index:3;
+    z-index:2;
 }
 .green-line {
     width: 100%;
