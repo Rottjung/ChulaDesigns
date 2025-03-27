@@ -44,7 +44,7 @@ p {
     background-color: #3e6b48; /* Green color */
     position: relative; /* Allows top positioning */
     top: -50px; /* Moves it up */
-    z-index:-1;
+    z-index:1;
 }
 nav {
     display: flex;
