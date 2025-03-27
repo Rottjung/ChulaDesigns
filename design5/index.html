@@ -3,26 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thoughts</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            /*display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;*/
-            background-color: #f0f0f0;
-        }
-
-        img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-    </style>
+    <title>THOUGHTS Journal</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <img src="thoughts.jpg">
+    <header>
+        <h1>THOUGHTS</h1>
+        <p>Journal of the Department of English, Faculty of Arts, Chulalongkorn University</p>
+    </header>
+    <nav>
+        <button id="current">
+            <img src="../icons/current.png" alt="Current">
+        </button>
+        <button id="archives">
+            <img src="../icons/archives.png" alt="Archives">
+        </button>
+        <button id="announcements">
+            <img src="../icons/announcements.png" alt="About">
+        </button>
+        <button id="editorial">
+            <img src="../icons/editorial.png" alt="Submission">
+        </button>
+        <button id="ethics">
+            <img src="../icons/ethics.png" alt="Submission">
+        </button>
+        <button id="submission">
+            <img src="../icons/submissions.png" alt="Submission">
+        </button>
+        <button id="info">
+            <img src="../icons/about.png" alt="Info">
+        </button>
+    </nav>
+    <main>
+        <section id="content" class="content">
+            <!-- Content will be dynamically loaded here -->
+        </section>
+    </main>
+    <footer>
+        <p>Thoughts is published by the Department of English, Faculty of Arts, Chulalongkorn University.</p>
+    </footer>
 </body>
 </html>

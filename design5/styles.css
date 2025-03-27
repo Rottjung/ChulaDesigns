@@ -1,0 +1,49 @@
+@font-face {
+    font-family: 'Anagram';
+    src: url('../fonts/Anagram.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Blinker';
+    src: url('../fonts/Blinker.ttf') format('truetype');
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    background: linear-gradient(to bottom, #f4a8b8, #82a47e);
+    font-family: 'Blinker', sans-serif;
+}
+
+header {
+    padding: 20px 0;
+    color: #3e6b48;
+}
+
+h1 {
+    font-family: 'Anagram', sans-serif;
+    font-size: 48px;
+    margin: 0;
+}
+
+p {
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+}
+
+nav li {
+    margin: 10px;
+}
+
+nav img {
+    width: 40px;
+    height: 40px;
+}
