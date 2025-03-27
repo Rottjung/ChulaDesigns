@@ -34,11 +34,11 @@ h1 {
 
 p {
     position: relative; /* Allows top positioning */
-    font-size: 16px;
+    font-size: 32px;
     margin-top: 5px;
     text-align: left;
     color: #f8a9c8;
-    top: -75px; /* Moves it up */
+    top: -60px; /* Moves it up */
     z-index: 10;
 }
 .green-line {
@@ -46,7 +46,7 @@ p {
     height: 75px; /* Adjust thickness */
     background-color: #3e6b48; /* Green color */
     position: relative; /* Allows top positioning */
-    top: -120px; /* Moves it up */
+    top: -150px; /* Moves it up */
     z-index: 1;
 }
 nav {
@@ -66,7 +66,7 @@ nav {
     nav img {
         width: auto;
         height: 50px;
-        filter: invert(46%) sepia(25%) saturate(250%) hue-rotate(60deg) brightness(100%) contrast(85%);
+        filter: invert(46%) sepia(25%) saturate(250%) hue-rotate(75deg) brightness(80%) contrast(200%);
     }
 
 .content {
