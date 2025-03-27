@@ -23,7 +23,7 @@ header {
 
 h1 {
     font-family: 'Anagram', sans-serif;
-    font-size: 48px;
+    font-size: 20rem;
     margin: 0;
 }
 
@@ -32,18 +32,31 @@ p {
     margin-top: 5px;
 }
 
-nav ul {
+nav {
     display: flex;
     justify-content: center;
-    list-style: none;
-    padding: 0;
+    gap: 20px;
+    padding: 20px;
 }
 
-nav li {
-    margin: 10px;
-}
+    nav button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 10px;
+    }
 
-nav img {
-    width: 40px;
-    height: 40px;
+    nav img {
+        width: auto;
+        height: 50px;
+        filter: invert(46%) sepia(25%) saturate(500%) hue-rotate(320deg) brightness(90%) contrast(85%);
+    }
+
+.content {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: rgba(255, 255, 255, 0.1); /* Light background for content */
+    border-radius: 8px; /* Optional: rounded corners for aesthetic */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2); /* Optional: shadow for content */
 }
