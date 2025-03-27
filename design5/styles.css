@@ -34,7 +34,12 @@ p {
     font-size: 16px;
     margin-top: 5px;
 }
-
+.green-line {
+    width: 80%; /* Adjust width as needed */
+    height: 5px; /* Thickness of the line */
+    background-color: #3e6b48; /* Green color */
+    margin: 10px auto; /* Center it and add spacing */
+}
 nav {
     display: flex;
     justify-content: center;
