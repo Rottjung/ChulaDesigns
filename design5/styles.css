@@ -23,6 +23,7 @@ header {
     text-align: right; /* Aligns text to the right */
     padding: 20px;
     position: relative;
+    color: #3e6b48;
 }
 
 .header-container {
