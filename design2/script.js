@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add click event listeners to menu items for submenu activation
     menuItems.forEach(item => {
         item.addEventListener('click', function () {
-            circularMenu.classList.add('submenu-active');
+            circularMenu.classList.add('submenuview-active');
             // Additional logic to display the corresponding submenu content
         });
     });
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add click event listeners to back buttons to return to main menu
     backButtons.forEach(button => {
         button.addEventListener('click', function () {
-            circularMenu.classList.remove('submenu-active');
+            circularMenu.classList.remove('submenuview-active');
             // Additional logic to hide the submenu content
         });
     });
