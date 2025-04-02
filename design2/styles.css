@@ -190,6 +190,85 @@ header {
     top: calc(var(--circle-shrink) * 3.5);
     left: calc(var(--circle-shrink) * 3);
 }
+
+/* about */
+.submenu-active .layer-1 {
+    background-color: rgba(177, 216, 216, 1);
+    width: calc(var(--base-circle-size));
+    height: calc(var(--base-circle-size));
+    z-index: 1;
+    top: 0;
+    left: 0;
+}
+
+/* submissions */
+.submenu-active .layer-2 {
+    background-color: rgba(177, 200, 216, 1);
+    width: calc(var(--base-circle-size) - var(--circle-shrink));
+    height: calc(var(--base-circle-size) - var(--circle-shrink));
+    z-index: 2;
+    top: calc(var(--circle-shrink) / 2);
+    left: 0;
+}
+
+/* ethics */
+.submenu-active .layer-3 {
+    background-color: rgba(177, 184, 216, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 2));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 2));
+    z-index: 3;
+    top: calc(var(--circle-shrink));
+    left: calc(var(--circle-shrink));
+}
+
+/* team */
+.submenu-active .layer-4 {
+    background-color: rgba(189, 170, 202, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 3));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 3));
+    z-index: 4;
+    top: calc((var(--circle-shrink) * 1.5));
+    left: calc(var(--circle-shrink));
+}
+
+/* announcements */
+.submenu-active .layer-5 {
+    background-color: rgba(203, 172, 198, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 4));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 4));
+    z-index: 5;
+    top: calc(var(--circle-shrink) * 2);
+    left: calc(var(--circle-shrink) * 2);
+}
+
+/* Archives */
+.submenu-active .layer-6 {
+    background-color: rgba(221, 180, 184, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 5));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 5));
+    z-index: 6;
+    top: calc((var(--circle-shrink) * 2.5));
+    left: calc(var(--circle-shrink) * 2);
+}
+
+/* Current */
+.submenu-active .layer-7 {
+    background-color: rgba(227, 200, 195, 1);
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 6));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 6));
+    z-index: 7;
+    top: calc(var(--circle-shrink) * 3);
+    left: calc(var(--circle-shrink) * 3);
+}
+
+.submenu-active .layer-8 {
+    background-color: rgba(240, 255, 220, 0.7); /* Choose a color that fits your design */
+    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 7));
+    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 7));
+    z-index: 8;
+    top: calc(var(--circle-shrink) * 3.5);
+    left: calc(var(--circle-shrink) * 3);
+}
 /* Adjust the menu items to align the text properly */
 .menu-item {
     position: absolute;

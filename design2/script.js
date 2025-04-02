@@ -71,6 +71,23 @@ document.addEventListener('DOMContentLoaded', function () {
         createCircularText();
     });
 
+    // Add click event listeners to menu items for submenu activation
+    menuItems.forEach(item => {
+        item.addEventListener('click', function () {
+            circularMenu.classList.add('submenu-active');
+            // Additional logic to display the corresponding submenu content
+        });
+    });
+
+    // Add click event listeners to back buttons to return to main menu
+    backButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            circularMenu.classList.remove('submenu-active');
+            // Additional logic to hide the submenu content
+        });
+    });
+});
+
     // Slider code commented out
     // Set up slider events
     //function setupSliders() {
@@ -171,4 +188,3 @@ document.addEventListener('DOMContentLoaded', function () {
     //        }, 100);
     //    });
     //});
-});
