@@ -107,10 +107,14 @@ header {
 .circle-layer {
     position: absolute;
     border-radius: 50%;
-    transition: all 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure layer content is centered */
+.submenu-container h2 {
+    margin-bottom: 1.5rem;
+    font-family: 'Xenophone', Arial, sans-serif;
+    color: #555;
 }
 
 /* about */
@@ -191,85 +195,103 @@ header {
     left: calc(var(--circle-shrink) * 3);
 }
 
-/* about */
+/* Add these styles to your existing CSS file */
+
+/* Circle animations for when a menu item is clicked */
+.submenu-active .circle-layer {
+    transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* Updates for menu item visibility during transitions */
+/*.menu-item {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}*/
+
+.submenu-view .menu-item {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+/* Ensure submenu content is visible */
+.submenu-container {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+    .submenu-container.active {
+        opacity: 1;
+        visibility: visible;
+        z-index: 30;
+    }
+
+/* Updates for back button */
+.back-button {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    z-index: 0;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+    .back-button:hover {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+/* Improved focus styling for active menu */
+.submenu-view .circle-layer {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Specific layer animations */
 .submenu-active .layer-1 {
-    background-color: rgba(177, 216, 216, 1);
-    width: calc(var(--base-circle-size) * 0.1);
-    height: calc(var(--base-circle-size) * 0.1);
-    z-index: 1;
-    top: 0;
-    left: 0;
+    transform: translateX(0) translateY(0) scale(1.05);
 }
 
-/* submissions */
 .submenu-active .layer-2 {
-    background-color: rgba(177, 200, 216, 1);
-    width: calc(var(--base-circle-size) - var(--circle-shrink) * 0.25);
-    height: calc(var(--base-circle-size) - var(--circle-shrink) * 0.25);
-    z-index: 2;
-    top: calc(var(--circle-shrink) * 2);
-    left: 0;
+    transform: translateX(0) translateY(0) scale(1.05);
 }
 
-/* ethics */
 .submenu-active .layer-3 {
-    background-color: rgba(177, 184, 216, 1);
-    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 0.33));
-    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 0.33));
-    z-index: 3;
-    top: calc(var(--circle-shrink));
-    left: calc(var(--circle-shrink));
+    transform: translateX(0) translateY(0) scale(1.05);
 }
 
-/* team */
 .submenu-active .layer-4 {
-    background-color: rgba(189, 170, 202, 1);
-    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 0.5));
-    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 0.5));
-    z-index: 4;
-    top: calc((var(--circle-shrink) * 0.5));
-    left: calc(var(--circle-shrink));
+    transform: translateX(0) translateY(0) scale(1.05);
 }
 
-/* announcements */
 .submenu-active .layer-5 {
-    background-color: rgba(203, 172, 198, 1);
-    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 0.66));
-    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 0.66));
-    z-index: 5;
-    top: calc(var(--circle-shrink) * 0.33);
-    left: calc(var(--circle-shrink) * 0.33);
+    transform: translateX(0) translateY(0) scale(1.05);
 }
 
-/* Archives */
 .submenu-active .layer-6 {
-    background-color: rgba(221, 180, 184, 1);
-    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 0.75));
-    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 0.75));
-    z-index: 6;
-    top: calc((var(--circle-shrink) * 0.25));
-    left: calc(var(--circle-shrink) * 0.25);
+    transform: translateX(0) translateY(0) scale(1.05);
 }
 
-/* Current */
 .submenu-active .layer-7 {
-    background-color: rgba(227, 200, 195, 1);
-    width: calc(var(--base-circle-size) - (var(--circle-shrink)));
-    height: calc(var(--base-circle-size) - (var(--circle-shrink)));
-    z-index: 7;
-    top: calc(var(--circle-shrink) * 0.1);
-    left: calc(var(--circle-shrink) * 0.1);
+    transform: translateX(0) translateY(0) scale(1.05);
 }
 
 .submenu-active .layer-8 {
-    background-color: rgba(240, 255, 220, 0.7); /* Choose a color that fits your design */
-    width: calc(var(--base-circle-size) - (var(--circle-shrink) * 1.1));
-    height: calc(var(--base-circle-size) - (var(--circle-shrink) * 1.1));
-    z-index: 8;
-    top: calc(var(--circle-shrink) * 0.05);
-    left: calc(var(--circle-shrink) * 0.05);
-}
-/* Adjust the menu items to align the text properly */
+    transform: translateX(0) translateY(0) scale(1.05);
+}/* Adjust the menu items to align the text properly */
 .menu-item {
     position: absolute;
     width: 100%;
@@ -334,37 +356,49 @@ header {
     pointer-events: none;
 }
 
-/* Submenu container */
-.submenu-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s;
-    z-index: 15;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.circular-menu.submenu-view .circle-layer {
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-    .submenu-container.active {
-        opacity: 1;
-        visibility: visible;
-    }
+/* Hide menu items during transition */
+.submenu-view .menu-item {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
 
-.back-button {
+Submenu container
+.submenu-container {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 2rem;
+    text-align: center;
+    max-width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+}
+
+.submenu-container.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/*.back-button {
     position: absolute;
     top: 10%;
     left: 10%;
     color: #555;
     cursor: pointer;
     z-index: 20;
-}
+}*/
 
 /* Footer styling */
 footer {
@@ -376,6 +410,7 @@ footer {
     padding: 1rem;
     font-size: 0.8rem;
     text-align: left;
+    z-index: -100;
 }
 
 .contact-info {
@@ -418,7 +453,7 @@ footer {
     opacity: 0;
     visibility: hidden;
 }
-.control-panel {
+/*.control-panel {
     position: fixed;
     top: 10px;
     right: 10px;
@@ -443,4 +478,4 @@ footer {
 
     .slider-group input {
         width: 100%;
-    }
+    }*/

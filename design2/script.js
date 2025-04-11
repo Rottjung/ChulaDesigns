@@ -1,10 +1,14 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Get all menu items
     const menuItems = document.querySelectorAll('.menu-item');
     const backButtons = document.querySelectorAll('.back-button');
-    const mainMenu = document.getElementById('mainMenu');
+    const submenuContainers = document.querySelectorAll('.submenu-container');
+    const circularMenu = document.querySelector('.circular-menu');
 
-    // Store menu item settings with the correct values from your sliders
+    if (!circularMenu) {
+        console.error('Circular menu not found!');
+        return;
+    }
+
     const menuSettings = {
         'item-about': { angle: 6, radius: 575, direction: -1 },
         'item-submissions': { angle: 200, radius: 575, direction: -1 },
@@ -17,43 +21,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let letterSpacing = 4;
 
-    // Function to calculate dynamic offsetX based on screen resolution
     function calculateDynamicOffset() {
-        const screenWidth = window.innerWidth;
-        const screenCenter = screenWidth / 2;
-
-        return (screenCenter/* - 50*/); // 50px is the assumed half-width of the menu item container
+        return window.innerWidth / 2;
     }
 
-    // Function to create circular text
     function createCircularText() {
-        const dynamicOffsetX = calculateDynamicOffset(); // Get dynamic offsetX
+        const dynamicOffsetX = calculateDynamicOffset();
 
         menuItems.forEach(item => {
             const text = item.getAttribute('data-text');
-            const itemClass = item.classList[1]; // e.g., 'item-about'
+            const itemClass = item.classList[1];
 
-            // Clear existing content
             item.innerHTML = '';
-
-            // Get settings for this item
             const settings = menuSettings[itemClass];
 
-            // Create each letter element
             for (let i = 0; i < text.length; i++) {
-                if (text[i] === ' ') continue; // Skip spaces
+                if (text[i] === ' ') continue;
 
                 const angle = settings.angle + (settings.direction * i * letterSpacing);
                 const letterSpan = document.createElement('span');
                 letterSpan.innerText = text[i];
 
-                // Position based on angle and radius, including the dynamic offset
                 const rad = angle * Math.PI / 180;
-                const x = settings.radius * Math.cos(rad);// - dynamicOffsetX;  // Apply dynamic offsetX
-                const y = settings.radius * Math.sin(rad);  // No offsetY
+                const x = settings.radius * Math.cos(rad);
+                const y = settings.radius * Math.sin(rad);
 
                 letterSpan.style.position = 'absolute';
-                letterSpan.style.transformOrigin = 'center';
                 letterSpan.style.left = `calc(50% + ${x}px)`;
                 letterSpan.style.top = `calc(50% + ${y}px)`;
                 letterSpan.style.transform = `translate(-50%, -50%) rotate(${angle + 90 * settings.direction}deg)`;
@@ -63,128 +56,92 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Call the circular text function initially
     createCircularText();
+    window.addEventListener('resize', createCircularText);
 
-    // Recalculate offsets when the window is resized
-    window.addEventListener('resize', function () {
-        createCircularText();
-    });
-
-    // Add click event listeners to menu items for submenu activation
     menuItems.forEach(item => {
         item.addEventListener('click', function () {
-            item.circularMenu.classList.add('submenu-view');
-            // Additional logic to display the corresponding submenu content
+            const submenuId = this.getAttribute('data-submenu');
+            const targetSubmenu = document.getElementById(submenuId + '-submenu');
+
+            // Add active class to circular menu
+            circularMenu.classList.add('submenu-view');
+            circularMenu.classList.add('submenu-active');
+
+            // Active the clicked submenu
+            if (targetSubmenu) {
+                // Hide all submenus first
+                submenuContainers.forEach(submenu => {
+                    submenu.classList.remove('active');
+                });
+
+                // Show targeted submenu
+                targetSubmenu.classList.add('active');
+            }
+
+            // Get the clicked layer's index
+            const itemClass = this.classList[1];
+            let layerIndex = 0;
+
+            if (itemClass === 'item-about') layerIndex = 1;
+            else if (itemClass === 'item-submissions') layerIndex = 2;
+            else if (itemClass === 'item-publication-ethics') layerIndex = 3;
+            else if (itemClass === 'item-editorial-team') layerIndex = 4;
+            else if (itemClass === 'item-announcements') layerIndex = 5;
+            else if (itemClass === 'item-archives') layerIndex = 6;
+            else if (itemClass === 'item-current') layerIndex = 7;
+
+            // Center the clicked layer and arrange others
+            const layers = document.querySelectorAll('.circle-layer');
+
+            layers.forEach((layer, index) => {
+                const layerNum = index + 1;
+
+                // Reset any previous transforms
+                layer.style.transform = '';
+
+                if (layerNum === layerIndex) {
+                    // Center and bring forward the clicked layer
+                    layer.style.zIndex = 30;
+                    layer.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                    layer.style.top = '50%';
+                    layer.style.left = '50%';
+                    layer.style.position = 'absolute';
+                } else {
+                    // Arrange other layers behind
+                    layer.style.zIndex = 20 - Math.abs(layerNum - layerIndex);
+
+                    // Calculate position based on distance from active layer /*${0.95 - Math.abs(distance) * 0.05}*/
+                    const distance = layerNum - layerIndex;
+                    const offset = layerIndex % 2 ? 50: -50;// distance * 30; // pixels offset for each layer
+
+                    layer.style.transform = `translate(${offset}px, ${offset}px) scale(2)`;
+                }
+            });
         });
     });
 
-    // Add click event listeners to back buttons to return to main menu
+    // Handle back button click
     backButtons.forEach(button => {
         button.addEventListener('click', function () {
-            item.circularMenu.classList.remove('submenu-view');
-            // Additional logic to hide the submenu content
+            // Reset menu view
+            circularMenu.classList.remove('submenu-view');
+            circularMenu.classList.remove('submenu-active');
+
+            // Hide all submenus
+            submenuContainers.forEach(submenu => {
+                submenu.classList.remove('active');
+            });
+
+            // Reset layers to original positions
+            const layers = document.querySelectorAll('.circle-layer');
+            layers.forEach((layer, index) => {
+                layer.style.zIndex = index + 1; // Reset to default z-index
+                layer.style.transform = ''; // Clear transforms
+                layer.style.top = ''; // Reset positioning
+                layer.style.left = '';
+                layer.style.position = '';
+            });
         });
     });
 });
-
-    // Slider code commented out
-    // Set up slider events
-    //function setupSliders() {
-    //    // Create a mapping between item classes and slider IDs
-    //    const mappings = {
-    //        'item-about': 'about',
-    //        'item-submissions': 'submissions',
-    //        'item-publication-ethics': 'ethics',
-    //        'item-editorial-team': 'team',
-    //        'item-announcements': 'announcements',
-    //        'item-archives': 'archives',
-    //        'item-current': 'current'
-    //    };
-
-    //    // For each menu item
-    //    Object.keys(menuSettings).forEach(itemClass => {
-    //        const sliderId = mappings[itemClass];
-
-    //        // Angle slider
-    //        const angleSlider = document.getElementById(`${sliderId}-angle`);
-    //        const angleValueSpan = document.getElementById(`${sliderId}-angle-value`);
-
-    //        if (angleSlider && angleValueSpan) {
-    //            angleSlider.addEventListener('input', function () {
-    //                const value = parseInt(this.value);
-    //                menuSettings[itemClass].angle = value;
-    //                angleValueSpan.textContent = value;
-    //                createCircularText();
-    //            });
-    //        } else {
-    //            console.error(`Could not find angle slider for ${itemClass} (looking for #${sliderId}-angle)`);
-    //        }
-
-    //        // Radius slider
-    //        const radiusSlider = document.getElementById(`${sliderId}-radius`);
-    //        const radiusValueSpan = document.getElementById(`${sliderId}-radius-value`);
-
-    //        if (radiusSlider && radiusValueSpan) {
-    //            radiusSlider.addEventListener('input', function () {
-    //                const value = parseInt(this.value);
-    //                menuSettings[itemClass].radius = value;
-    //                radiusValueSpan.textContent = value;
-    //                createCircularText();
-    //            });
-    //        } else {
-    //            console.error(`Could not find radius slider for ${itemClass} (looking for #${sliderId}-radius)`);
-    //        }
-    //    });
-
-    //    // Letter spacing slider
-    //    const spacingSlider = document.getElementById('spacing');
-    //    const spacingValueSpan = document.getElementById('spacing-value');
-
-    //    if (spacingSlider && spacingValueSpan) {
-    //        spacingSlider.addEventListener('input', function () {
-    //            letterSpacing = parseInt(this.value);
-    //            spacingValueSpan.textContent = letterSpacing;
-    //            createCircularText();
-    //        });
-    //    }
-    //}
-
-    //setupSliders();
-    
-
-    //// Add click event to menu items
-    //menuItems.forEach(item => {
-    //    item.addEventListener('click', function () {
-    //        const submenuId = this.getAttribute('data-submenu');
-
-    //        // Add the submenu view class to trigger animations
-    //        mainMenu.classList.add('submenu-view');
-
-    //        // Wait for animation to complete before showing submenu
-    //        setTimeout(() => {
-    //            // Hide all submenus
-    //            document.querySelectorAll('.submenu-container').forEach(submenu => {
-    //                submenu.classList.remove('active');
-    //            });
-
-    //            // Show the selected submenu
-    //            document.getElementById(submenuId + '-submenu').classList.add('active');
-    //        }, 500);
-    //    });
-    //});
-
-    //// Add click event to back buttons
-    //backButtons.forEach(button => {
-    //    button.addEventListener('click', function () {
-    //        // Hide all submenus
-    //        document.querySelectorAll('.submenu-container').forEach(submenu => {
-    //            submenu.classList.remove('active');
-    //        });
-
-    //        // Remove submenu view class to reverse animation
-    //        setTimeout(() => {
-    //            mainMenu.classList.remove('submenu-view');
-    //        }, 100);
-    //    });
-    //});
