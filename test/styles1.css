@@ -1,0 +1,32 @@
+/* FULLSCREEN HERO BACKGROUND */
+.homepage-hero {
+    position: relative;
+    background-image: url('https://rottjung.github.io/assets/bg-hero.png');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* ICON BAR */
+.icon-bar {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    display: flex;
+    gap: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+    .icon-bar a {
+        color: #f88;
+        font-size: 2rem;
+        text-decoration: none;
+    }
+
+        .icon-bar a:hover {
+            color: #fff;
+        }

@@ -1,0 +1,173 @@
+/* === OJS Custom CSS - Adapted from design2/styles.css === */
+
+/* --- FONT DEFINITIONS --- */
+/* IMPORTANT: Upload these font files to your OJS public directory */
+/* Adjust the url() paths below if needed based on where they are uploaded */
+@font-face {
+    font-family: 'Clutchee';
+    src: url('https://github.com/Rottjung/ChulaDesigns/blob/main/fonts/clutchee.otf') format('opentype'); /* Adjust path if needed */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Xenophone';
+    src: url('https://github.com/Rottjung/ChulaDesigns/blob/main/fonts/xeno.ttf') format('truetype'); /* Adjust path if needed */
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* --- GLOBAL STYLES --- */
+body {
+    background-color: #777; /* Grey background from your design */
+    color: #333; /* Default text color from your design */
+    font-family: 'Xenophone', Arial, sans-serif; /* Default font from your design */
+    margin: 0;
+    padding: 0;
+    /* overflow-x: hidden; */ /* Consider if needed */
+    min-height: 100vh;
+}
+
+/* Remove default margins/paddings that might interfere */
+* {
+    /* Use with caution - might override theme defaults unexpectedly */
+    /* margin: 0; */
+    /* padding: 0; */
+    box-sizing: border-box;
+}
+
+a {
+    color: #b5b5b5; /* Consider a link color - using header text color as placeholder */
+    text-decoration: none; /* Optional: remove underline */
+}
+
+    a:hover {
+        color: white; /* Example hover color */
+        text-decoration: underline; /* Optional: add underline on hover */
+    }
+
+/* --- HEADER AREA --- */
+/* --- !!! IMPORTANT: Find correct selectors for your theme using Inspector Tool !!! --- */
+
+/* Example: Wrapper for the entire header */
+.pkp_head_wrapper, #headerNavigationContainer {
+    background-color: #777; /* Header background from your design */
+    color: #b5b5b5; /* Default header text color from your design */
+    padding: 1rem 0; /* Add some padding - adjust as needed */
+    margin: 0;
+    width: 100%;
+}
+
+/* Example: Site Title */
+/* This might be an h1 inside .pkp_site_name or #headerTitle */
+.pkp_site_name font {
+    font-family: 'Clutchee', Arial, sans-serif !important; /* Header font from your design */
+    font-size: 15rem !important; /* NOTE: 15rem is HUGE! Adjust significantly for OJS */
+    /*font-size: 4rem; /* Example: Start much smaller */
+    letter-spacing: 4px !important; /* From your design */
+    text-transform: uppercase !important; /* From your design */
+    font-weight: normal !important; /* From your design */
+    color: #b5b5b5 !important; /* Header text color from your design */
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important; /* Adjust line height */
+    text-decoration: none !important;
+    display: block !important; /* Ensure it takes full width if needed */
+    text-align: center !important; /* Center align like your design */
+}
+
+    .pkp_site_name a:hover, #headerTitle h1 a:hover {
+        color: white; /* Example hover */
+        text-decoration: none;
+    }
+
+/* Example: Tagline or Header Text below title */
+/* OJS might have a specific class like .tag_line, or you might need to target other elements */
+/* Or, you might need to add this text via Header settings in OJS admin */
+.pkp_site_name .tag_line, .pkp_site_description { /* Example selectors */
+    font-family: 'Xenophone', Arial, sans-serif;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem; /* Adjusted size */
+    color: #b5b5b5; /* Header text color from your design */
+    line-height: 1.2;
+    text-align: center; /* Center align like your design */
+    display: block;
+}
+
+
+/* --- NAVIGATION --- */
+/* --- !!! IMPORTANT: Find correct selectors for your theme using Inspector Tool !!! --- */
+
+/* Example: Primary Navigation Menu */
+.pkp_navigation_primary {
+    /* Add styling for the main nav bar if needed */
+    /* background-color: #some_color; */
+    text-align: center; /* Center the nav items */
+}
+
+    .pkp_navigation_primary ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: inline-block; /* Helps with centering */
+    }
+
+    .pkp_navigation_primary li {
+        display: inline-block; /* Horizontal menu */
+        margin: 0 10px; /* Spacing between items */
+    }
+
+        .pkp_navigation_primary li a {
+            font-family: 'Xenophone', Arial, sans-serif;
+            color: #b5b5b5; /* Using header text color */
+            font-size: 1.1rem; /* Adjust size */
+            letter-spacing: 1px; /* Slight spacing */
+            text-transform: lowercase; /* Lowercase like your design */
+            padding: 5px 10px;
+        }
+
+            .pkp_navigation_primary li a:hover {
+                color: white;
+                background-color: rgba(0, 0, 0, 0.1); /* Slight background on hover */
+                text-decoration: none;
+            }
+
+/* --- MAIN CONTENT AREA --- */
+/* --- !!! IMPORTANT: Find correct selectors for your theme using Inspector Tool !!! --- */
+#mainContainer, #content {
+    background-color: #f8f8f8; /* Example: Light background for content readability */
+    padding: 2rem; /* Add padding around content */
+    color: #333; /* Ensure readable text color */
+}
+
+    /* You might want to style headings within the content */
+    #content h1, #content h2, #content h3 {
+        font-family: 'Clutchee', Arial, sans-serif; /* Or use Xenophone */
+        color: #444;
+    }
+
+/* --- FOOTER --- */
+/* --- !!! IMPORTANT: Find correct selectors for your theme using Inspector Tool !!! --- */
+#footerContainer, .pkp_footer {
+    background-color: #000; /* Footer background from your design */
+    color: #808080; /* Footer text color from your design */
+    padding: 1.5rem 2rem; /* Add padding */
+    font-size: 0.9rem; /* Adjusted font size */
+    /* text-align: left; */ /* Default OJS footer might be left-aligned */
+    margin-top: 2rem; /* Ensure space above footer */
+}
+
+    #footerContainer a, .pkp_footer a {
+        color: #a0a0a0; /* Lighter grey for footer links */
+    }
+
+        #footerContainer a:hover, .pkp_footer a:hover {
+            color: white;
+        }
+
+/* --- Remove Control Panel Styles --- */
+/* These are from your test html and not needed */
+/* .control-panel { display: none; } */
