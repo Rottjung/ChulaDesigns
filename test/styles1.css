@@ -1,3 +1,88 @@
+@font-face {
+    font-family: 'Blackout';
+    src: url('https://cdn.jsdelivr.net/gh/Rottjung/ChulaDesigns/fonts/Blackout-2AM.ttf') format('truetype');
+    font-display: swap;
+}
+
+.pkp_site_name {
+    font-family: 'Blackout', sans-serif; /* You can replace with any font you like */
+    font-size: 4rem;
+    text-transform: uppercase;
+    color: #be9da7;
+    text-align: center;
+    padding: 30px 0;
+    background-color: #ffffff; /* Or use transparent or any background */
+    letter-spacing: 0.05em;
+}
+
+/* Optional: remove unwanted margins or center */
+.pkp_site_name_wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent; /* or a soft background color/image */
+}
+
 body {
-    background-color: #f0f0f0 !important;
+    background-color: #be9da7 !important;
+    background-image: url('https://i.imgur.com/1Uzw4of.png') !important;
+    background-position: center !important;
+}
+.pkp_structure_head {
+    background-color: #be9da7 !important;
+}
+
+/* General shared styling for menu icons */
+#navigationPrimary a {
+    display: inline-block;
+    width: 64px;
+    height: 64px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    text-indent: -9999px;
+    overflow: hidden;
+    vertical-align: middle;
+    /*filter: saturate(110%) sepia(1) hue-rotate(320deg) brightness(0.5);*/
+    filter: brightness(0) saturate(100%) invert(83%) sepia(9%) saturate(1063%) hue-rotate(292deg) brightness(97%) contrast(88%);
+}
+/* Individual icons */
+a[href$="/issue/current"] {
+    background-image: url('https://i.imgur.com/4rMeQc5.png');
+}
+a[href$="/issue/archive"] {
+    background-image: url('https://i.imgur.com/pCmdefV.png');
+}
+a[href$="/announcement"] {
+    background-image: url('https://i.imgur.com/LPatUVo.png');
+}
+a[href$="/editorialTeam"] {
+    background-image: url('https://i.imgur.com/emd7EFc.png');
+}
+a[href$="/publication_ethics"] {
+    background-image: url('https://i.imgur.com/lFOScjE.png');
+}
+a[href$="/about/submissions"] {
+    background-image: url('https://i.imgur.com/KkkdfQC.png');
+}
+/*a[href$="/about"] {
+    background-image: url('https://i.imgur.com/xxMdBRn.png');
+}*/
+#navigationPrimary li:last-child > a[data-toggle="dropdown"] {
+    background-image: url('https://i.imgur.com/xxMdBRn.png');
+    display: inline-block;
+    width: 64px;
+    height: 64px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    text-indent: -9999px;
+    overflow: hidden;
+    filter: saturate(110%) sepia(1) hue-rotate(320deg) brightness(0.5);
+}
+
+#navigationPrimary a:hover {
+    filter: brightness(0.25);
+    transform: scale(1.1);
+    transition: all 0.3s ease;
 }
