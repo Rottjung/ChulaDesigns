@@ -4,6 +4,11 @@
     font-display: swap;
 }
 
+.pkp_site_name,
+.pkp_site_name * {
+    font-family: 'Blackout', sans-serif !important;
+}
+
 .pkp_site_name {
     font-family: 'Blackout', sans-serif; /* You can replace with any font you like */
     font-size: 4rem;
@@ -35,8 +40,8 @@ body {
 /* General shared styling for menu icons */
 #navigationPrimary a {
     display: inline-block;
-    width: 64px;
-    height: 64px;
+    width: 40px;
+    height: 40px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
