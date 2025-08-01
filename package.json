@@ -1,9 +1,9 @@
 
 {
-  "name": "brood-ghpages",
+  "name": "brood",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://yourusername.github.io/brood-ghpages",
+  "homepage": "https://rottjung.github.io/ChulaDesigns/",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
