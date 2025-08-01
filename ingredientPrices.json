@@ -1,0 +1,42 @@
+{
+  "Butter": {
+    "Anchor": 456.5,
+    "Gold": 335
+  },
+  "Bread flour": {
+    "": 40.17
+  },
+  "Water": {
+    "": 3.6
+  },
+  "Eggs": {
+    "": 4.166666666666667
+  },
+  "Milk": {
+    "": 45
+  },
+  "Whipcream": {
+    "": 250
+  },
+  "White sugar": {
+    "": 35
+  },
+  "Brown sugar": {
+    "": 40
+  },
+  "Salt": {
+    "": 20
+  },
+  "Chocolate": {
+    "": 250
+  },
+  "Cheese": {
+    "": 500
+  },
+  "Olive oil": {
+    "": 500
+  },
+  "Vegetable oil": {
+    "": 50
+  }
+}
