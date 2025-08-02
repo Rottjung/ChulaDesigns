@@ -1,170 +1,312 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🥞Brood Bakery Calculator</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brood Bakery Calculator</title>
 </head>
 <body>
-  <h1>🥞Brood Bakery Calculator</h1><label for="recipeSelect">Choose Recipe:</label> <select id="recipeSelect"></select>
+  <h1>🥖 Brood Bakery Calculator</h1>
 
-  <div>
-    <label>Input Type:</label>
-    <select id="inputType">
-      <option value="dough" selected>Total Dough Weight</option>
-      <option value="flour">Flour Only</option>
-    </select>
-  </div><input type="number" id="inputGrams" value="1000" /> g
+  <label for="recipeSelect">Choose Recipe:</label>
+  <select id="recipeSelect"></select>
 
-  <h2>Ingredients</h2>
-  <table id="ingredientsTable">
-    <tr>
-      <th>Ingredient</th>
-      <th>Baker’s %</th>
-      <th>Amount (g)</th>
-      <th>Brand</th>
-      <th>Cost (THB)</th>
-    </tr>
-  </table>  <h2>Extras (per item)</h2>
-  <table id="extrasTable">
-    <tr>
-      <th>Ingredient</th>
-      <th>Grams per Item</th>
-      <th>Brand</th>
-      <th>Cost per Item (THB)</th>
-    </tr>
-  </table>  <h3 id="totalCost">Total Ingredient Cost: 0 THB</h3>  <div id="toast" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#444; color:white; padding:10px; border-radius:5px;">Price updated</div>  <script>
+  <br><br>
+
+  <label>Input Type:</label>
+  <label><input type="radio" name="inputType" value="dough" checked>Dough</label>
+  <label><input type="radio" name="inputType" value="flour">Flour</label>
+  <input type="number" id="inputGrams" placeholder="grams" value="1000">
+
+  <br><br>
+
+  <h3>Ingredients</h3>
+  <table border="1">
+    <thead>
+      <tr><th>Ingredient</th><th>Baker %</th><th>Amount (g)</th><th>Brand</th><th>Cost (THB)</th></tr>
+    </thead>
+    <tbody id="ingredientsTable"></tbody>
+  </table>
+
+  <br>
+
+  <h3>Extras (per item)</h3>
+  <table border="1">
+    <thead>
+      <tr><th>Ingredient</th><th>Grams per Item</th><th>Brand</th><th>Cost per Item (THB)</th></tr>
+    </thead>
+    <tbody id="extrasTable"></tbody>
+  </table>
+
+  <br>
+
+  <h2>Total Ingredient Cost: <span id="totalCost">0</span> THB</h2>
+
+  <script>
     let recipes = [];
-    let ingredientPrices = {};
+    let prices = {};
+    let selectedRecipe = null;
+    let ingredientBrands = {};
 
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.innerText = msg;
-      toast.style.display = 'block';
-      setTimeout(() => toast.style.display = 'none', 1000);
+    async function loadData() {
+      const recipesRes = await fetch('recipes.json');
+      recipes = await recipesRes.json();
+
+      const pricesRes = await fetch('ingredientPrices.json');
+      prices = await pricesRes.json();
+
+      populateRecipeSelect();
     }
 
-    function fetchJSON(file) {
-      return fetch(file).then(res => {
-        if (!res.ok) throw new Error(`${file} not found`);
-        return res.json();
+    function populateRecipeSelect() {
+      const select = document.getElementById('recipeSelect');
+      select.innerHTML = "";
+      recipes.forEach((r, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = r.name;
+        select.appendChild(opt);
       });
+      selectedRecipe = recipes[0];
+      calculate();
     }
 
-    function loadRecipes() {
-      fetchJSON('recipes.json').then(data => {
-        recipes = data;
-        const select = document.getElementById('recipeSelect');
-        data.forEach((r, i) => {
-          const opt = document.createElement('option');
-          opt.value = i;
-          opt.textContent = r.name;
-          select.appendChild(opt);
-        });
-        if (data.length > 0) {
-          select.selectedIndex = 0;
-          loadSelectedRecipe();
-        }
-      });
-    }
-
-    function loadIngredientPrices() {
-      fetchJSON('ingredientPrices.json').then(data => {
-        ingredientPrices = data;
-      });
-    }
-
-    function getPrice(name, brand) {
-      const entry = ingredientPrices[name];
-      if (!entry) return 0;
-      return brand && entry[brand] ? entry[brand] : entry[""] || 0;
-    }
-
-    function loadSelectedRecipe() {
-      const selected = recipes[document.getElementById('recipeSelect').value];
-      const table = document.getElementById('ingredientsTable');
-      const extrasTable = document.getElementById('extrasTable');
-      const inputType = document.getElementById('inputType').value;
-      const grams = parseFloat(document.getElementById('inputGrams').value);
-
-      table.innerHTML = `<tr><th>Ingredient</th><th>Baker’s %</th><th>Amount (g)</th><th>Brand</th><th>Cost (THB)</th></tr>`;
-      extrasTable.innerHTML = `<tr><th>Ingredient</th><th>Grams per Item</th><th>Brand</th><th>Cost per Item (THB)</th></tr>`;
-
-      let flourWeight = grams;
-      if (inputType === 'dough') {
-        const totalPct = selected.ingredients.reduce((sum, i) => sum + i.percent, 0);
-        flourWeight = grams * 100 / totalPct;
+    function getFirstBrand(ingredientName) {
+      const options = prices[ingredientName];
+      if (options && typeof options === 'object') {
+        return Object.keys(options)[0] || '';
       }
+      return '';
+    }
+
+    function calculate() {
+      if (!selectedRecipe) return;
+      const inputGrams = parseFloat(document.getElementById('inputGrams').value) || 0;
+      const inputType = document.querySelector('input[name="inputType"]:checked').value;
+      const flourPercent = selectedRecipe.ingredients.find(i => i.percent === 100)?.percent || 100;
+      const flourWeight = inputType === 'flour' ? inputGrams : inputGrams / getTotalPercent(selectedRecipe) * 100;
+
+      const ingredientsBody = document.getElementById('ingredientsTable');
+      const extrasBody = document.getElementById('extrasTable');
+      ingredientsBody.innerHTML = "";
+      extrasBody.innerHTML = "";
 
       let totalCost = 0;
 
-      selected.ingredients.forEach((ing, i) => {
-        const row = table.insertRow();
-        row.insertCell().textContent = ing.name;
-        row.insertCell().textContent = ing.percent + '%';
+      selectedRecipe.ingredients.forEach(ing => {
+        const row = document.createElement('tr');
+        const percent = ing.percent || 0;
+        const grams = flourWeight * percent / 100;
+        let cost = 0;
+        let brandCell = document.createElement('td');
+        let brand = ingredientBrands[ing.name] || getFirstBrand(ing.name);
+        ingredientBrands[ing.name] = brand;
 
-        const amount = flourWeight * (ing.percent / 100);
-        row.insertCell().textContent = amount.toFixed(1);
-
-        const brandCell = row.insertCell();
-        const brandSelect = document.createElement('select');
-        brandSelect.innerHTML = ['<option value="">-</option>']
-          .concat(Object.keys(ingredientPrices[ing.name] || {}).map(b => `<option value="${b}">${b}</option>`)).join('');
-        brandSelect.onchange = () => {
-          const price = getPrice(ing.name, brandSelect.value);
-          const cost = (amount / 1000) * price;
-          row.cells[4].textContent = cost.toFixed(2);
-          calcTotalCost();
-          showToast("Price updated");
-        };
-        brandCell.appendChild(brandSelect);
-
-        const costCell = row.insertCell();
-        const price = getPrice(ing.name, "");
-        const cost = (amount / 1000) * price;
-        costCell.textContent = cost.toFixed(2);
-        totalCost += cost;
-      });
-
-      selected.extras?.forEach(extra => {
-        const row = extrasTable.insertRow();
-        row.insertCell().textContent = extra.name;
-        row.insertCell().textContent = extra.perUnitGrams;
-
-        const brandCell = row.insertCell();
-        const brandSelect = document.createElement('select');
-        brandSelect.innerHTML = ['<option value="">-</option>']
-          .concat(Object.keys(ingredientPrices[extra.name] || {}).map(b => `<option value="${b}">${b}</option>`)).join('');
-        brandSelect.onchange = () => {
-          const price = getPrice(extra.name, brandSelect.value);
-          const cost = (price / 1000) * extra.perUnitGrams;
-          row.cells[3].textContent = cost.toFixed(2);
-          showToast("Price updated");
-        };
-        brandCell.appendChild(brandSelect);
-
-        const costCell = row.insertCell();
-        const price = getPrice(extra.name, "");
-        const cost = (price / 1000) * extra.perUnitGrams;
-        costCell.textContent = cost.toFixed(2);
-      });
-
-      function calcTotalCost() {
-        let total = 0;
-        for (let r = 1; r < table.rows.length; r++) {
-          const val = parseFloat(table.rows[r].cells[4].textContent);
-          total += isNaN(val) ? 0 : val;
+        if (prices[ing.name]) {
+          const priceData = prices[ing.name];
+          if (typeof priceData === 'object') {
+            if (Object.keys(priceData).length > 1) {
+              const sel = document.createElement('select');
+              Object.keys(priceData).forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                sel.appendChild(opt);
+              });
+              sel.value = brand;
+              sel.onchange = (e) => {
+                ingredientBrands[ing.name] = e.target.value;
+                calculate();
+              };
+              brandCell.appendChild(sel);
+              cost = (grams * priceData[brand]) / 1000;
+            } else {
+              cost = (grams * priceData[""]) / 1000;
+              brandCell.textContent = "-";
+            }
+          }
         }
-        document.getElementById("totalCost").textContent = `Total Ingredient Cost: ${total.toFixed(2)} THB`;
-      }
-      calcTotalCost();
+
+        totalCost += cost;
+
+        row.innerHTML = `<td>${ing.name}</td><td>${percent}%</td><td>${grams.toFixed(1)}</td>`;
+        row.appendChild(brandCell);
+        row.innerHTML += `<td>${cost.toFixed(2)}</td>`;
+        ingredientsBody.appendChild(row);
+      });
+
+      selectedRecipe.extras?.forEach(ext => {
+        const row = document.createElement('tr');
+        const grams = ext.perUnitGrams;
+        let cost = 0;
+        let brandCell = document.createElement('td');
+        let brand = ingredientBrands[ext.name] || getFirstBrand(ext.name);
+        ingredientBrands[ext.name] = brand;
+
+        if (prices[ext.name]) {
+          const priceData = prices[ext.name];
+          if (typeof priceData === 'object') {
+            if (Object.keys(priceData).length > 1) {
+              const sel = document.createElement('select');
+              Object.keys(priceData).forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                sel.appendChild(opt);
+              });
+              sel.value = brand;
+              sel.onchange = (e) => {
+                ingredientBrands[ext.name] = e.target.value;
+                calculate();
+              };
+              brandCell.appendChild(sel);
+              cost = (grams * priceData[brand]) / 1000;
+            } else {
+              cost = (grams * priceData[""]) / 1000;
+              brandCell.textContent = "-";
+            }
+          }
+        }
+
+        row.innerHTML = `<td>${ext.name}</td><td>${grams}</td>`;
+        row.appendChild(brandCell);
+        row.innerHTML += `<td>${cost.toFixed(2)}</td>`;
+        extrasBody.appendChild(row);
+      });
+
+      document.getElementById('totalCost').textContent = totalCost.toFixed(2);
     }
 
-    document.getElementById('recipeSelect').onchange = loadSelectedRecipe;
-    document.getElementById('inputGrams').oninput = loadSelectedRecipe;
-    document.getElementById('inputType').onchange = loadSelectedRecipe;
+    function getTotalPercent(recipe) {
+      return recipe.ingredients.reduce((sum, i) => sum + (i.percent || 0), 0);
+    }
 
-    loadIngredientPrices();
-    loadRecipes();
+    document.getElementById('recipeSelect').addEventListener('change', (e) => {
+      selectedRecipe = recipes[parseInt(e.target.value)];
+      calculate();
+    });
+
+    document.getElementById('inputGrams').addEventListener('input', calculate);
+    document.querySelectorAll('input[name="inputType"]').forEach(r => r.addEventListener('change', calculate));
+
+    loadData();
+  
+function handleBrandChange(selectElement, ingredientName, amount, isExtra) {
+    const selectedBrand = selectElement.value;
+    const row = selectElement.closest("tr");
+    const costCell = row.querySelector("td:last-child");
+
+    let pricePerKg = 0;
+
+    if (ingredientPrices.hasOwnProperty(ingredientName)) {
+        const ingredientEntry = ingredientPrices[ingredientName];
+
+        if (selectedBrand && selectedBrand !== "-" && ingredientEntry.brands && ingredientEntry.brands[selectedBrand]) {
+            pricePerKg = ingredientEntry.brands[selectedBrand];
+        } else if (ingredientEntry.price_per_kg) {
+            pricePerKg = ingredientEntry.price_per_kg;
+        }
+    }
+
+    const cost = (amount / 1000) * pricePerKg;
+    costCell.textContent = cost.toFixed(2);
+
+    calculateTotalCost(); // Recalculate after update
+}
+
+</script>
+</body>
+</html>      <tr>
+        <th>Ingredient</th>
+        <th>Grams per Item</th>
+        <th>Brand</th>
+        <th>Cost per Item (THB)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>  <h2 id="totalCost">Total Ingredient Cost: 0 THB</h2>  <script>
+    let recipes = [], prices = {}, selectedRecipe = null, inputType = 'dough';
+
+    const recipeSelect = document.getElementById("recipeSelect");
+    const inputWeight = document.getElementById("inputWeight");
+    const ingredientsTable = document.querySelector("#ingredientsTable tbody");
+    const extrasTable = document.querySelector("#extrasTable tbody");
+    const totalCostDisplay = document.getElementById("totalCost");
+
+    fetch("recipes.json").then(r => r.json()).then(data => {
+      recipes = data;
+      data.forEach((r, i) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = r.name;
+        recipeSelect.appendChild(opt);
+      });
+      selectedRecipe = recipes[0];
+      render();
+    });
+
+    fetch("ingredientPrices.json").then(r => r.json()).then(data => {
+      prices = data;
+      render();
+    });
+
+    document.querySelectorAll("input[name='inputType']").forEach(r => {
+      r.addEventListener("change", e => {
+        inputType = e.target.value;
+        render();
+      });
+    });
+
+    recipeSelect.addEventListener("change", e => {
+      selectedRecipe = recipes[e.target.value];
+      render();
+    });
+
+    inputWeight.addEventListener("input", render);
+
+    function render() {
+      if (!selectedRecipe || !prices) return;
+      const totalWeight = parseFloat(inputWeight.value);
+      const flourPercent = selectedRecipe.ingredients.find(i => i.percent === 100)?.percent || 100;
+      const totalFlour = inputType === 'flour' ? totalWeight : (totalWeight / selectedRecipe.ingredients.reduce((sum, i) => sum + (i.percent || 0), 0)) * 100;
+      let totalCost = 0;
+      ingredientsTable.innerHTML = "";
+
+      selectedRecipe.ingredients.forEach(ing => {
+        const row = document.createElement("tr");
+        const amount = (totalFlour * ing.percent) / 100;
+        let brand = "";
+        let price = prices[ing.name]?.[brand] || Object.values(prices[ing.name] || {})[0] || 0;
+        let cost = (price / 1000) * amount;
+        totalCost += cost;
+
+        row.innerHTML = `
+          <td>${ing.name}</td>
+          <td>${ing.percent}%</td>
+          <td>${amount.toFixed(1)}</td>
+          <td>${brand}</td>
+          <td>${cost.toFixed(2)}</td>
+        `;
+        ingredientsTable.appendChild(row);
+      });
+
+      extrasTable.innerHTML = "";
+      selectedRecipe.extras.forEach(extra => {
+        const row = document.createElement("tr");
+        const brand = "";
+        const price = prices[extra.name]?.[brand] || Object.values(prices[extra.name] || {})[0] || 0;
+        const grams = extra.perUnitGrams;
+        const cost = (price / 1000) * grams;
+        row.innerHTML = `
+          <td>${extra.name}</td>
+          <td>${grams}</td>
+          <td>${brand}</td>
+          <td>${cost.toFixed(2)}</td>
+        `;
+        extrasTable.appendChild(row);
+      });
+
+      totalCostDisplay.textContent = `Total Ingredient Cost: ${totalCost.toFixed(2)} THB`;
+    }
   </script></body>
 </html>
