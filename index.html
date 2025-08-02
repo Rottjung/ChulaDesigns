@@ -191,27 +191,35 @@
 
     loadData();
   
-function handleBrandChange(selectElement, ingredientName, amount, isExtra) {
+function handleBrandChange(selectElement, ingredientName, grams, isExtra = false) {
     const selectedBrand = selectElement.value;
-    const row = selectElement.closest("tr");
-    const costCell = row.querySelector("td:last-child");
-
+    const priceInfo = ingredientPrices[ingredientName];
     let pricePerKg = 0;
 
-    if (ingredientPrices.hasOwnProperty(ingredientName)) {
-        const ingredientEntry = ingredientPrices[ingredientName];
-
-        if (selectedBrand && selectedBrand !== "-" && ingredientEntry.brands && ingredientEntry.brands[selectedBrand]) {
-            pricePerKg = ingredientEntry.brands[selectedBrand];
-        } else if (ingredientEntry.price_per_kg) {
-            pricePerKg = ingredientEntry.price_per_kg;
+    if (priceInfo) {
+        if (selectedBrand && priceInfo.brands && priceInfo.brands[selectedBrand]) {
+            pricePerKg = priceInfo.brands[selectedBrand];
+        } else if (priceInfo.default) {
+            pricePerKg = priceInfo.default;
         }
     }
 
-    const cost = (amount / 1000) * pricePerKg;
+    const cost = (grams / 1000) * pricePerKg;
+
+    // Update the cost cell
+    const row = selectElement.closest('tr');
+    const costCell = row.querySelector('td:last-child');
     costCell.textContent = cost.toFixed(2);
 
-    calculateTotalCost(); // Recalculate after update
+    // Store updated cost in data attribute (optional)
+    selectElement.dataset.cost = cost.toFixed(2);
+
+    // Recalculate totals
+    if (isExtra) {
+        recalculateExtrasCost();
+    } else {
+        recalculateTotalCost();
+    }
 }
 
 </script>
