@@ -43,4 +43,41 @@
       }
     ]
   }
+  {
+    "name":"White Sourdough",
+    "itemWeightGrams": 650,
+    "ingredients": [
+      {
+        "name": "Bread flour",
+        "percent": 100
+      },
+      {
+        "name": "Starter",
+        "percent": 20
+      },
+      {
+        "name": "Water",
+        "percent": 75
+      },
+      {
+        "name": "Salt",
+        "percent": 2
+      }
+    ],
+    "extra": [
+      {
+        "name": "Seeds",
+        "perUnitGrams": 150
+      },
+      {
+        "name": "Berries",
+        "perUnitGrams": 150
+      },
+      {
+        "name": "Nuts",
+        "perUnitGrams": 150
+      }
+    ]
+  }
+}
 ]
