@@ -13,7 +13,7 @@
   </style>
 </head>
 <body>
-  <h2>🥖 Brood -- Bakery Calculator</h2><label for="recipeSelect">Choose Recipe:</label> <select id="recipeSelect"></select>
+  <h2>🥖 Brood Bakery Calculator</h2><label for="recipeSelect">Choose Recipe:</label> <select id="recipeSelect"></select>
 
   <div>
     <label><input type="radio" name="inputType" value="dough" checked /> Total Dough Weight</label>
@@ -126,26 +126,5 @@
 
       totalCostDisplay.textContent = `Total Ingredient Cost: ${totalCost.toFixed(2)} THB`;
     }
-  </script>
-<script>
-// Clean isolated function to apply brand selection logic
-function applyBrandPricing(prices, ingredientName, selectedBrand) {
-    if (!prices[ingredientName]) return 0;
-
-    // If brand is "" or not provided, use default price
-    if (!selectedBrand || selectedBrand === "") {
-        return prices[ingredientName][""] || 0;
-    }
-
-    // If brand exists in the list, return the brand's price
-    if (prices[ingredientName][selectedBrand]) {
-        return prices[ingredientName][selectedBrand];
-    }
-
-    // Fallback to default if specific brand not found
-    return prices[ingredientName][""] || 0;
-}
-</script>
-
-</body>
+  </script></body>
 </html>
