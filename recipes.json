@@ -197,5 +197,45 @@
         "perUnitGrams": 15
       }
     ]
-  }
+  },
+  {
+  "name": "Focaccia Genovese",
+  "itemWeightGrams": "",
+  "ingredients": [
+    {
+      "name": "Bread flour",
+      "percent": 100
+    },
+    {
+      "name": "Water",
+      "percent": 70
+    },
+    {
+      "name": "Olive oil",
+      "percent": 10
+    },
+    {
+      "name": "Salt",
+      "percent": 2
+    },
+    {
+      "name": "White sugar",
+      "percent": 2
+    },
+    {
+      "name": "Starter",
+      "percent": 15
+    }
+  ],
+  "extras": [
+    {
+      "name": "Salt",
+      "perUnitGrams": 3
+    },
+    {
+      "name": "Olive oil",
+      "perUnitGrams": 10
+    }
+  ]
+}
 ]
