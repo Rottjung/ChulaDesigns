@@ -7,6 +7,24 @@
     "Anchor": 458,
     "Gold": 340
   },
+  "Seeds": {
+    "None": 0,
+    "Sesame": 300,
+    "Pumpkin": 220,
+    "Sunflower": 250
+  },
+  "Berries": {
+    "None": 0,
+    "Blueberry": 1000,
+    "Cranberry": 300,
+    "Raisin": 150,
+    "Strawberry": 200
+  },
+  "Nuts": {
+    "None": 0,
+    "Mixed": 1000,
+    "Peanuts": 400
+  }
   "Bread flour": {
     "": 40.17
   },
