@@ -1,117 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Brood Bakery Calculator</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-    th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-    th { background-color: #f2f2f2; }
-    h1, h2 { margin-top: 30px; }
-    .brand-popup {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      display: none;
-      z-index: 999;
-      box-shadow: 0px 0px 10px #888;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>-=Brood=- Bakery Calculator</h1>
-
-  <label for="recipeSelect">Choose Recipe:</label>
-  <select id="recipeSelect"></select>
-
-  <br/><br/>
-
-  <label>Input Type:</label>
-  <label><input type="radio" name="inputType" value="dough" checked /> Total Dough Weight</label>
-  <label><input type="radio" name="inputType" value="flour" /> Flour Only</label>
-  <input type="number" id="inputWeight" value="1000" /> g
-
-  <h2>Ingredients</h2>
-  <table id="ingredientTable">
-    <thead>
-      <tr>
-        <th>Ingredient</th>
-        <th>Baker’s %</th>
-        <th>Amount (g)</th>
-        <th>Brand</th>
-        <th>Cost (THB)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <h2>Extras (per item)</h2>
-  <table id="extrasTable">
-    <thead>
-      <tr>
-        <th>Ingredient</th>
-        <th>Grams per Item</th>
-        <th>Brand</th>
-        <th>Cost per Item (THB)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <h2>Total Ingredient Cost: <span id="totalCost">0</span> THB</h2>
-
-  <div class="brand-popup" id="brandPopup">Price updated!</div>
-
-  <script>
-    let recipes = {};
-    let prices = {};
-    let selectedRecipe = null;
-    let ingredientBrands = {};
-
-    async function loadData() {
-      const [recipesRes, pricesRes] = await Promise.all([
-        fetch('recipes.json'), fetch('ingredientPrices.json')
-      ]);
-      recipes = await recipesRes.json();
-      prices = await pricesRes.json();
-      populateRecipeSelect();
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brood Bakery Calculator</title>
+  <title>🍞Brood Bakery Calculator</title>
   <style>
-    /* Basic styles for layout */
-    body { font-family: sans-serif; padding: 20px; }
-    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
-    th { background-color: #f0f0f0; }
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    table, th, td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 5px;
+    }
     #toast {
       visibility: hidden;
-      min-width: 250px;
+      min-width: 200px;
       background-color: #333;
       color: #fff;
       text-align: center;
       border-radius: 4px;
       padding: 12px;
       position: fixed;
-      z-index: 1;
-      left: 50%;
+      z-index: 1000;
       bottom: 30px;
+      left: 50%;
       transform: translateX(-50%);
+      font-size: 14px;
     }
     #toast.show {
       visibility: visible;
-      animation: fadein 0.5s, fadeout 0.5s 1.5s;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+    #toast.error {
+      background-color: darkred;
     }
     @keyframes fadein {
-      from { bottom: 0; opacity: 0; }
+      from { bottom: 0; opacity: 0; } 
       to { bottom: 30px; opacity: 1; }
     }
     @keyframes fadeout {
@@ -121,76 +46,54 @@
   </style>
 </head>
 <body>
-  <h1>🥞 Brood Bakery Calculator</h1>
+  <h1>🍞Brood Bakery Calculator</h1>
   <label for="recipeSelect">Choose Recipe:</label>
-  <select id="recipeSelect"></select>  <div>
-    <label>Input Type:</label>
-    <select id="inputType">
-      <option value="dough">Total Dough Weight</option>
-      <option value="flour">Flour Only</option>
-    </select>
-    <input id="inputAmount" type="number" value="1000" /> g
-  </div>  <h2>Ingredients</h2>
-  <table id="ingredientsTable">
-    <thead>
-      <tr><th>Ingredient</th><th>Amount (g)</th><th>Brand</th><th>Cost (THB)</th><th>%</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>  <h2>Extras (per item)</h2>
-  <table id="extrasTable">
-    <thead>
-      <tr><th>Ingredient</th><th>Grams per Item</th><th>Brand</th><th>Cost per Item (THB)</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>  <h3>Total Ingredient Cost: <span id="totalCost">0 THB</span></h3>  <div id="toast"></div>  <script>
+  <select id="recipeSelect"></select>
+  <br><br>
+  <label>Input Type:</label>
+  <select id="inputType">
+    <option value="dough">Total Dough Weight</option>
+    <option value="flour">Flour Only</option>
+  </select>
+  <br><br>
+  <input type="number" id="inputAmount" value="1000"> g  <h2>Ingredients</h2>
+  <table id="ingredientTable"></table>  <h2>Extras (per item)</h2>
+  <table id="extrasTable"></table>  <h3 id="totalCost">Total Ingredient Cost: 0 THB</h3>  <div id="toast"></div>  <script>
+    const showToast = (msg, isError = false) => {
+      const toast = document.getElementById("toast");
+      toast.className = "show" + (isError ? " error" : "");
+      toast.textContent = msg;
+      setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    };
+
+    const recipesUrl = `recipes.json?cachebust=${Date.now()}`;
+    const pricesUrl = `ingredientPrices.json?cachebust=${Date.now()}`;
+
     let recipes = [];
     let prices = {};
 
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.className = 'show';
-      setTimeout(() => toast.className = toast.className.replace('show', ''), 2000);
-    }
-
-    async function loadJSON(url) {
-      const res = await fetch(url + '?cachebust=' + new Date().getTime());
-      return await res.json();
-    }
-
-    async function loadData() {
+    const fetchJson = async (url, label) => {
       try {
-        [recipes, prices] = await Promise.all([
-          loadJSON('recipes.json'),
-          loadJSON('ingredientPrices.json')
-        ]);
-        populateRecipes();
-        showToast('Data loaded successfully');
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`${label} failed to load`);
+        const json = await res.json();
+        showToast(`${label} loaded`);
+        return json;
       } catch (e) {
-        showToast('Failed to load data');
+        console.error(e);
+        showToast(`${label} failed`, true);
+        return null;
       }
-    }
+    };
 
-    function populateRecipes() {
-      const select = document.getElementById('recipeSelect');
-      select.innerHTML = '';
-      recipes.forEach((recipe, i) => {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = recipe.name;
-        select.appendChild(opt);
-      });
-      select.selectedIndex = 0;
-      renderRecipe();
-    }
+    const loadAll = async () => {
+      const r = await fetchJson(recipesUrl, "Recipes");
+      const p = await fetchJson(pricesUrl, "Prices");
+      if (r) recipes = r;
+      if (p) prices = p;
+      // your render logic can go here
+    };
 
-    function renderRecipe() {
-      // This function should call renderIngredients() and renderExtras()
-      // and also calculateTotalCost() - assumed already in your working version
-      showToast('Recipe loaded');
-    }
-
-    document.getElementById('recipeSelect').addEventListener('change', renderRecipe);
-    window.addEventListener('load', loadData);
+    loadAll();
   </script></body>
 </html>
