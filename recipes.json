@@ -81,7 +81,7 @@
   },
   {
     "name": "Brussels Waffles",
-    "itemWeightGrams": "",
+    "itemWeightGrams": "20",
     "ingredients": [
       {
         "name": "Self-raising flour",
@@ -112,7 +112,7 @@
   },
   {
     "name": "Sourdough Donuts",
-    "itemWeightGrams": "",
+    "itemWeightGrams": "50",
     "ingredients": [
       {
         "name": "Bread flour",
@@ -152,7 +152,7 @@
   },
   {
     "name": "Sourdough Cinnamon Rolls",
-    "itemWeightGrams": "",
+    "itemWeightGrams": "70",
     "ingredients": [
       {
         "name": "Bread flour",
