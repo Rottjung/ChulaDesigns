@@ -42,9 +42,9 @@
         "perUnitGrams": 1
       }
     ]
-  }
+  },
   {
-    "name":"White Sourdough",
+    "name": "White Sourdough",
     "itemWeightGrams": 650,
     "ingredients": [
       {
@@ -76,6 +76,125 @@
       {
         "name": "Nuts",
         "perUnitGrams": 150
+      }
+    ]
+  },
+  {
+    "name": "Brussels Waffles",
+    "itemWeightGrams": "",
+    "ingredients": [
+      {
+        "name": "Self-raising flour",
+        "percent": 100
+      },
+      {
+        "name": "Eggs",
+        "percent": 70
+      },
+      {
+        "name": "Milk",
+        "percent": 50
+      },
+      {
+        "name": "Sparkling water",
+        "percent": 50
+      },
+      {
+        "name": "White sugar",
+        "percent": 12
+      },
+      {
+        "name": "Unsalted butter",
+        "percent": 25
+      }
+    ],
+    "extras": []
+  },
+  {
+    "name": "Sourdough Donuts",
+    "itemWeightGrams": "",
+    "ingredients": [
+      {
+        "name": "Bread flour",
+        "percent": 100
+      },
+      {
+        "name": "Starter",
+        "percent": 25
+      },
+      {
+        "name": "Milk",
+        "percent": 55
+      },
+      {
+        "name": "Eggs",
+        "percent": 10
+      },
+      {
+        "name": "White sugar",
+        "percent": 10
+      },
+      {
+        "name": "Unsalted butter",
+        "percent": 10
+      },
+      {
+        "name": "Salt",
+        "percent": 2
+      }
+    ],
+    "extras": [
+      {
+        "name": "White sugar",
+        "perUnitGrams": 20
+      }
+    ]
+  },
+  {
+    "name": "Sourdough Cinnamon Rolls",
+    "itemWeightGrams": "",
+    "ingredients": [
+      {
+        "name": "Bread flour",
+        "percent": 100
+      },
+      {
+        "name": "Milk",
+        "percent": 40
+      },
+      {
+        "name": "Starter",
+        "percent": 25
+      },
+      {
+        "name": "Eggs",
+        "percent": 10
+      },
+      {
+        "name": "White sugar",
+        "percent": 10
+      },
+      {
+        "name": "Unsalted butter",
+        "percent": 15
+      },
+      {
+        "name": "Salt",
+        "percent": 2
+      }
+    ],
+    "extras": [
+      {
+        "name": "White sugar",
+        "perUnitGrams": 30
+      },
+      {
+        "name": "Cinnamon",
+        "perUnitGrams": 5
+      },
+      {
+        "name": "Unsalted butter",
+        "perUnitGrams": 15
       }
     ]
   }
