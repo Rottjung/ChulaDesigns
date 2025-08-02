@@ -190,31 +190,7 @@
     document.querySelectorAll('input[name="inputType"]').forEach(r => r.addEventListener('change', calculate));
 
     loadData();
-  
-function handleBrandChange(selectElement, ingredientName, amount, isExtra) {
-    const selectedBrand = selectElement.value;
-    const row = selectElement.closest("tr");
-    const costCell = row.querySelector("td:last-child");
-
-    let pricePerKg = 0;
-
-    if (ingredientPrices.hasOwnProperty(ingredientName)) {
-        const ingredientEntry = ingredientPrices[ingredientName];
-
-        if (selectedBrand && selectedBrand !== "-" && ingredientEntry.brands && ingredientEntry.brands[selectedBrand]) {
-            pricePerKg = ingredientEntry.brands[selectedBrand];
-        } else if (ingredientEntry.price_per_kg) {
-            pricePerKg = ingredientEntry.price_per_kg;
-        }
-    }
-
-    const cost = (amount / 1000) * pricePerKg;
-    costCell.textContent = cost.toFixed(2);
-
-    calculateTotalCost(); // Recalculate after update
-}
-
-</script>
+  </script>
 </body>
 </html>      <tr>
         <th>Ingredient</th>
