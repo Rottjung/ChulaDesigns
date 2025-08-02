@@ -67,15 +67,15 @@
     "extras": [
       {
         "name": "Seeds",
-        "perUnitGrams": 150
+        "perUnitGrams": 30
       },
       {
         "name": "Berries",
-        "perUnitGrams": 150
+        "perUnitGrams": 35
       },
       {
         "name": "Nuts",
-        "perUnitGrams": 150
+        "perUnitGrams": 30
       }
     ]
   },
