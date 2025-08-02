@@ -126,5 +126,30 @@
 
       totalCostDisplay.textContent = `Total Ingredient Cost: ${totalCost.toFixed(2)} THB`;
     }
-  </script></body>
+  
+// === BRAND LOGIC ===
+// If the ingredient has a brand defined, show a dropdown with available options.
+// When brand changes, re-calculate cost based on selected brand.
+
+function createBrandDropdown(ingredientName, selectedBrand, onChangeCallback) {
+    const prices = ingredientPrices[ingredientName];
+    if (!prices || typeof prices !== 'object') return '';
+
+    const select = document.createElement('select');
+    Object.keys(prices).forEach(brand => {
+        const option = document.createElement('option');
+        option.value = brand;
+        option.text = brand;
+        if (brand === selectedBrand) option.selected = true;
+        select.appendChild(option);
+    });
+
+    select.addEventListener('change', () => {
+        onChangeCallback(select.value);
+    });
+
+    return select;
+}
+
+</script></body>
 </html>
