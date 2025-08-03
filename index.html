@@ -16,6 +16,21 @@
       z-index: 9999;
       margin-top: 10px;
     }
+    /* Center the header */
+  .header-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .header-title {
+    font-size: 2.5em;
+    margin: 0;
+  }
+
+  .header-subtitle {
+    font-size: 1.2em;
+    color: #666;
+  }
     .suggested-column {
       display: flex;
       flex-direction: column;
@@ -30,7 +45,10 @@
   </style>
 </head>
 <body>
-  <h1>-=Brood=- Bakery Calculator</h1>
+  <div class="header-container">
+  <h1 class="header-title">-= BROOD =-</h1>
+  <div class="header-subtitle">Bakery Calculator</div>
+</div>
   <label for="recipe-select">Choose Recipe:</label>
   <select id="recipe-select" onchange="handleRecipeChange()"></select>
   <span id="item-weight-info"></span><br />
