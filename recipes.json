@@ -248,23 +248,23 @@
     },
     {
       "name": "Starter",
-      "percent": 60
+      "percent": 35
     },
     {
       "name": "Milk",
-      "percent": 40
+      "percent": 60
     },
     {
       "name": "Eggs",
+      "percent": 50
+    },
+    {
+      "name": "Honey",
       "percent": 40
     },
     {
-      "name": "White sugar",
-      "percent": 32
-    },
-    {
       "name": "Unsalted butter",
-      "percent": 30
+      "percent": 45
     },
     {
       "name": "Vanilla extract",
@@ -275,6 +275,11 @@
       "percent": 1.6
     }
     ],
-    "extras": []
+    "extras": [
+      {
+        "name": "Berries",
+        "percent": 80
+      }
+    ]
   }
 ]
