@@ -278,7 +278,7 @@
     "extras": [
       {
         "name": "Berries",
-        "percent": 80
+        "perUnitGrams": 80
       }
     ]
   }
