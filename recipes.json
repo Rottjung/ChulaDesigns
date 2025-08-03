@@ -200,7 +200,7 @@
   },
   {
   "name": "Focaccia Genovese",
-  "itemWeightGrams": "",
+  "itemWeightGrams": "200",
   "ingredients": [
     {
       "name": "Bread flour",
