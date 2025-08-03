@@ -6,14 +6,24 @@
     body { font-family: sans-serif; padding: 20px; }
     select, input { margin: 5px; }
     table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 6px; }
+    .popup {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 9999;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <h1>🥖 Brood Bakery Calculator</h1>
-  <label for="recipe-select">Choose Recipe:</label> 
+  <h1>-=Brood=- Bakery Calculator</h1>
+  <label for="recipe-select">Choose Recipe:</label>
   <select id="recipe-select" onchange="handleRecipeChange()"></select>
-  <span id="item-weight-info"></span>
-  <br /><label for="input-type">Input Type:</label> <select id="input-type" onchange="handleRecipeChange()"> <option value="dough">Total Dough Weight</option> <option value="flour">Flour Only</option> </select> <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g
+  <span id="item-weight-info"></span><br /><label for="input-type">Input Type:</label> <select id="input-type" onchange="handleRecipeChange()"> <option value="dough">Total Dough Weight</option> <option value="flour">Flour Only</option> </select> <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g
 
   <h3>Ingredients</h3>
   <table id="ingredients-table">
@@ -21,7 +31,7 @@
       <tr><th>Ingredient</th><th>Amount (g)</th><th>Baker's %</th><th>Brand</th><th>Cost (THB)</th></tr>
     </thead>
     <tbody></tbody>
-  </table>    <h3>Extras (per item)</h3>
+  </table>  <h3>Extras (per item)</h3>
   <table id="extras-table">
     <thead>
       <tr><th>Ingredient</th><th>Grams per Item</th><th>Brand</th><th>Cost per Item (THB)</th></tr>
@@ -33,18 +43,16 @@
 
     function showPopup(message) {
       const popup = document.createElement('div');
+      popup.className = 'popup';
       popup.textContent = message;
-      popup.style.position = 'fixed';
-      popup.style.top = '20px';
-      popup.style.left = '50%';
-      popup.style.transform = 'translateX(-50%)';
-      popup.style.background = '#333';
-      popup.style.color = '#fff';
-      popup.style.padding = '10px 20px';
-      popup.style.borderRadius = '5px';
-      popup.style.zIndex = 9999;
       document.body.appendChild(popup);
-      setTimeout(() => document.body.removeChild(popup), 2000);
+
+      const existingPopups = document.querySelectorAll('.popup');
+      existingPopups.forEach((el, i) => {
+        el.style.top = `${20 + i * 50}px`;
+      });
+
+      setTimeout(() => popup.remove(), 2000);
     }
 
     function loadJSON(path, successCallback, failCallback) {
@@ -53,12 +61,8 @@
           if (!response.ok) throw new Error('HTTP error');
           return response.json();
         })
-        .then(data => {
-          successCallback(data);
-        })
-        .catch(err => {
-          failCallback(err);
-        });
+        .then(data => successCallback(data))
+        .catch(err => failCallback(err));
     }
 
     function populateRecipeSelect() {
@@ -84,13 +88,15 @@
       const grams = parseFloat(document.getElementById('input-grams').value);
       if (!recipe || isNaN(grams)) return;
 
-      document.getElementById('item-weight-info').textContent = recipe.itemWeightGrams ? ` | Item Weight: ${recipe.itemWeightGrams}g` : '';
+      const itemWeightInfo = document.getElementById('item-weight-info');
+      itemWeightInfo.textContent = recipe.itemWeightGrams ? ` | Weight per item: ${recipe.itemWeightGrams}g` : '';
 
       let flourWeight = inputType === 'flour' ? grams : grams / (1 + totalExtraPercent(recipe));
 
       const ingTbody = document.getElementById('ingredients-table').querySelector('tbody');
       ingTbody.innerHTML = '';
       let totalCost = 0;
+
       recipe.ingredients.forEach(ing => {
         const row = document.createElement('tr');
         const amount = flourWeight * (ing.percent / 100);
@@ -99,6 +105,7 @@
         const pricePerKg = prices[ing.name]?.[selectedBrand] || 0;
         const cost = pricePerKg * (amount / 1000);
         totalCost += cost;
+
         row.innerHTML = `
           <td>${ing.name}</td>
           <td>${amount.toFixed(1)}</td>
@@ -120,6 +127,7 @@
         const pricePerKg = prices[extra.name]?.[selectedBrand] || 0;
         const cost = pricePerKg * (extra.perUnitGrams / 1000);
         totalCost += cost;
+
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${extra.name}</td>
@@ -142,6 +150,18 @@
       const cost = price * (amount / 1000);
       costTd.textContent = cost.toFixed(2);
       showPopup(`${name} price updated (${brand})`);
+      updateTotalCost();
+    }
+
+    function updateTotalCost() {
+      let total = 0;
+      document.querySelectorAll('#ingredients-table tbody tr').forEach(row => {
+        total += parseFloat(row.cells[4].textContent) || 0;
+      });
+      document.querySelectorAll('#extras-table tbody tr').forEach(row => {
+        total += parseFloat(row.cells[3].textContent) || 0;
+      });
+      document.getElementById('total-cost').textContent = total.toFixed(2);
     }
 
     function totalExtraPercent(recipe) {
@@ -152,6 +172,7 @@
       data => { recipes = data; populateRecipeSelect(); showPopup('Recipes loaded'); },
       err => showPopup('Failed to load recipes')
     );
+
     loadJSON('ingredientPrices.json',
       data => { prices = data; showPopup('Prices loaded'); },
       err => showPopup('Failed to load prices')
