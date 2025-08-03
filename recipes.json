@@ -240,7 +240,7 @@
 },
   {
   "name": "Sourdough Vanilla Muffins",
-  "itemWeightGrams": "",
+  "itemWeightGrams": "80",
   "ingredients": [
     {
       "name": "Bread flour",
