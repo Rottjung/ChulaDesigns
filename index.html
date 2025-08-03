@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head>
-  <meta charset="UTF-8" />
+<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brood Bakery Calculator</title>
   <style>
@@ -37,7 +36,14 @@
       <tr><th>Ingredient</th><th>Grams per Item</th><th>Brand</th><th>Cost per Item (THB)</th></tr>
     </thead>
     <tbody></tbody>
-  </table>  <h2>Total Ingredient Cost: <span id="total-cost">0</span> THB</h2>  <script>
+  </table>  <h2>Total Ingredient Cost: <span id="total-cost">0</span> THB</h2>  <h3>Suggested Price Calculation</h3>
+  <label>Monthly Electricity (THB): <input type="number" id="elec" value="3600" oninput="handleRecipeChange()"></label>
+  <label>Water (THB): <input type="number" id="water" value="200" oninput="handleRecipeChange()"></label>
+  <label>Gas (THB): <input type="number" id="gas" value="430" oninput="handleRecipeChange()"></label><br>
+  <label>Workdays/month: <input type="number" id="days" value="20" oninput="handleRecipeChange()"></label>
+  <label>Hours/day: <input type="number" id="hours" value="12" oninput="handleRecipeChange()"></label>
+  <label>Items/day: <input type="number" id="items" value="175" oninput="handleRecipeChange()"></label>
+  <label>THB/hour: <input type="number" id="wage" value="60" oninput="handleRecipeChange()"></label>  <h2>Suggested Item Price: <span id="suggested-price">0</span> THB</h2>  <script>
     let recipes = [];
     let prices = {};
 
@@ -46,12 +52,10 @@
       popup.className = 'popup';
       popup.textContent = message;
       document.body.appendChild(popup);
-
       const existingPopups = document.querySelectorAll('.popup');
       existingPopups.forEach((el, i) => {
         el.style.top = `${20 + i * 50}px`;
       });
-
       setTimeout(() => popup.remove(), 2000);
     }
 
@@ -74,7 +78,6 @@
         opt.textContent = r.name;
         select.appendChild(opt);
       });
-
       if (recipes.length > 0) {
         select.selectedIndex = 0;
         showPopup(`Auto-loaded: ${recipes[0].name}`);
@@ -88,9 +91,7 @@
       const grams = parseFloat(document.getElementById('input-grams').value);
       if (!recipe || isNaN(grams)) return;
 
-      const itemWeightInfo = document.getElementById('item-weight-info');
-      itemWeightInfo.textContent = recipe.itemWeightGrams ? ` | Weight per item: ${recipe.itemWeightGrams}g` : '';
-
+      document.getElementById('item-weight-info').textContent = recipe.itemWeightGrams ? ` | Weight per item: ${recipe.itemWeightGrams}g` : '';
       let flourWeight = inputType === 'flour' ? grams : grams / (1 + totalExtraPercent(recipe));
 
       const ingTbody = document.getElementById('ingredients-table').querySelector('tbody');
@@ -142,6 +143,7 @@
       });
 
       document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+      updateSuggestedPrice(totalCost, recipe);
     }
 
     function updateBrand(selectEl, name, amount, costTd) {
@@ -162,10 +164,27 @@
         total += parseFloat(row.cells[3].textContent) || 0;
       });
       document.getElementById('total-cost').textContent = total.toFixed(2);
+      const recipe = recipes[document.getElementById('recipe-select').value];
+      updateSuggestedPrice(total, recipe);
     }
 
     function totalExtraPercent(recipe) {
       return recipe.ingredients.reduce((acc, i) => acc + (i.name.toLowerCase() === 'bread flour' ? 0 : i.percent), 0) / 100;
+    }
+
+    function updateSuggestedPrice(cost, recipe) {
+      const elec = parseFloat(document.getElementById('elec').value) || 0;
+      const water = parseFloat(document.getElementById('water').value) || 0;
+      const gas = parseFloat(document.getElementById('gas').value) || 0;
+      const days = parseFloat(document.getElementById('days').value) || 1;
+      const hours = parseFloat(document.getElementById('hours').value) || 1;
+      const items = parseFloat(document.getElementById('items').value) || 1;
+      const wage = parseFloat(document.getElementById('wage').value) || 0;
+
+      const utilityCost = (elec + water + gas) / (days * items);
+      const laborCost = (wage * hours) / items;
+      const totalSuggested = cost + utilityCost + laborCost;
+      document.getElementById('suggested-price').textContent = totalSuggested.toFixed(2);
     }
 
     loadJSON('recipes.json',
@@ -177,5 +196,4 @@
       data => { prices = data; showPopup('Prices loaded'); },
       err => showPopup('Failed to load prices')
     );
-  </script></body>
-</html>
+  </script></body></html>
