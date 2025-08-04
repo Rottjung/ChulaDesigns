@@ -25,6 +25,12 @@
     "Mixed": 1000,
     "Peanuts": 400
   },
+  "Filling": {
+    "None": 0,
+    "Chocolate": 250,
+    "Cheese": 500,
+    "Cream": 250
+  },
   "Bread flour": {
     "": 40.17
   },
