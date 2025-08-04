@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8" />
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brood Bakery Calculator</title>
   <style>
@@ -16,21 +18,18 @@
       z-index: 9999;
       margin-top: 10px;
     }
-    /* Center the header */
-  .header-container {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .header-title {
-    font-size: 2.5em;
-    margin: 0;
-  }
-
-  .header-subtitle {
-    font-size: 1.2em;
-    color: #666;
-  }
+    .header-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .header-title {
+      font-size: 2.5em;
+      margin: 0;
+    }
+    .header-subtitle {
+      font-size: 1.2em;
+      color: #666;
+    }
     .suggested-column {
       display: flex;
       flex-direction: column;
@@ -42,22 +41,19 @@
     }
     .input-short {
       width: 100px;
+    }
   </style>
 </head>
 <body>
   <div class="header-container">
-  <h1 class="header-title">-= BROOD =-</h1>
-  <div class="header-subtitle">Bakery Calculator</div>
-</div>
+    <h1 class="header-title">-= BROOD =-</h1>
+    <div class="header-subtitle">Bakery Calculator</div>
+  </div>
   <label for="recipe-select">Choose Recipe:</label>
   <select id="recipe-select" onchange="handleRecipeChange()"></select>
-  <span id="item-weight-info"></span><br />
-  <label for="input-type">Input Type:</label>
-  <select id="input-type" onchange="handleRecipeChange()">
-    <option value="dough">Total Dough Weight</option>
-    <option value="flour">Flour Only</option>
-  </select>
-  <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g  <h3>Ingredients</h3>
+  <span id="item-weight-info"></span><br /><label for="input-type">Input Type:</label> <select id="input-type" onchange="handleRecipeChange()"> <option value="dough">Total Dough Weight</option> <option value="flour">Flour Only</option> </select> <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g
+
+  <h3>Ingredients</h3>
   <table id="ingredients-table">
     <thead>
       <tr><th>Ingredient</th><th>Amount (g)</th><th>Baker's %</th><th>Brand</th><th>Cost (THB)</th></tr>
@@ -111,7 +107,6 @@
         opt.textContent = r.name;
         select.appendChild(opt);
       });
-
       if (recipes.length > 0) {
         select.selectedIndex = 0;
         showPopup(`Auto-loaded: ${recipes[0].name}`);
@@ -166,7 +161,7 @@
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${extra.name}</td>
-          <td>${extra.perUnitGrams}</td>
+          <td><input type="number" value="${extra.perUnitGrams}" oninput="extra.perUnitGrams = parseFloat(this.value); handleRecipeChange()"></td>
           <td>
             <select onchange="updateBrand(this, '${extra.name}', ${extra.perUnitGrams}, this.parentElement.nextElementSibling)">
               ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
@@ -217,7 +212,6 @@
       const monthlyCost = elec + water + gas + (days * hours * wage);
       const monthlyItems = days * dailyItems;
       const overheadPerItem = monthlyCost / monthlyItems;
-
       const suggested = (totalCost + overheadPerItem) * markup;
       document.getElementById('suggested-price').textContent = suggested.toFixed(2);
     }
