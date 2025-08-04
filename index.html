@@ -40,8 +40,9 @@
 
   <label for="recipe-select">Choose Recipe:</label>
   <select id="recipe-select" onchange="handleRecipeChange()"></select>
-  <span id="item-weight-info"></span><br />
-
+  <label for="item-weight">Item weight (g):</label>
+  <input type="number" id="item-weight" class="small-input" oninput="updateCosts()" />
+  
   <label for="input-type">Input Type:</label>
   <select id="input-type" onchange="handleRecipeChange()">
     <option value="dough">Total Dough Weight</option>
