@@ -5,23 +5,19 @@
   <title>-=BROOD=- Bakery Calculator</title>
   <style>
     body { font-family: sans-serif; padding: 20px; text-align: center; }
-    h1 { margin-bottom: 0; }
-    h2 { margin-top: 5px; }
-    select, input { margin: 5px; font-size: 0.9rem; }
-    table { margin: 0 auto; width: auto; border-collapse: collapse; }
-    th, td { border: 1px solid #ccc; padding: 6px; font-size: 0.9rem; }
-    input[type=number] { width: 60px; font-size: 0.9rem; }
-    .config-section { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-    .config-section label { display: flex; flex-direction: column; font-size: 0.85rem; }
+    select, input { margin: 5px; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 6px; }
+    table { margin: auto; }
+    .small-input { width: 60px; }
   </style>
 </head>
 <body>
-  <h1>- =BROOD=-</h1>
-  <h2>Bakery Calculator</h2><label for="recipe-select">Choose Recipe:</label> <select id="recipe-select" onchange="handleRecipeChange()"></select> <br />
+  <h1>=BROOD=</h1>
+  <h2>Bakery Calculator</h2><label for="recipe-select">Choose Recipe:</label> <select id="recipe-select" onchange="handleRecipeChange()"></select><br />
 
 <label for="input-type">Input Type:</label> <select id="input-type" onchange="handleRecipeChange()"> <option value="dough">Total Dough Weight</option> <option value="flour">Flour Only</option> </select> <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g
 
-  <div id="item-weight-display"></div>  <h3>Ingredients</h3>
+  <h3>Ingredients</h3>
   <table id="ingredients-table">
     <thead>
       <tr><th>Ingredient</th><th>Amount (g)</th><th>Baker's %</th><th>Brand</th><th>Cost (THB)</th></tr>
@@ -34,24 +30,22 @@
     </thead>
     <tbody></tbody>
   </table>  <h2>Total Ingredient Cost: <span id="total-cost">0</span> THB</h2>
-  <h2>Suggested Price: <span id="suggested-price">0</span> THB</h2>  <div class="config-section">
-    <label>Electricity / month (THB): <input type="number" id="electricity" value="3600" oninput="handleRecipeChange()"></label>
-    <label>Water / month (THB): <input type="number" id="water" value="200" oninput="handleRecipeChange()"></label>
-    <label>Gas / month (THB): <input type="number" id="gas" value="430" oninput="handleRecipeChange()"></label>
-    <label>Labor hours / day: <input type="number" id="labor-hours" value="12" oninput="handleRecipeChange()"></label>
-    <label>Labor rate (THB/hour): <input type="number" id="labor-rate" value="60" oninput="handleRecipeChange()"></label>
-    <label>Production days / month: <input type="number" id="prod-days" value="20" oninput="handleRecipeChange()"></label>
-    <label>Items / day: <input type="number" id="items-day" value="175" oninput="handleRecipeChange()"></label>
-    <label>Markup %: <input type="number" id="markup" value="200" oninput="handleRecipeChange()"></label>
+  <h2>Suggested Item Price: <span id="suggested-price">0</span> THB</h2>  <div style="text-align: center;">
+    <label>Electricity/month: <input class="small-input" id="electricity" value="3600" type="number" oninput="handleRecipeChange()"></label>
+    <label>Water/month: <input class="small-input" id="water" value="200" type="number" oninput="handleRecipeChange()"></label>
+    <label>Gas/month: <input class="small-input" id="gas" value="430" type="number" oninput="handleRecipeChange()"></label><br>
+    <label>Labor hours/day: <input class="small-input" id="hours" value="12" type="number" oninput="handleRecipeChange()"></label>
+    <label>Labor wage/hour: <input class="small-input" id="wage" value="50" type="number" oninput="handleRecipeChange()"></label>
+    <label>Items/day: <input class="small-input" id="items" value="175" type="number" oninput="handleRecipeChange()"></label>
+    <label>Markup x: <input class="small-input" id="markup" value="2.5" type="number" step="0.1" oninput="handleRecipeChange()"></label>
   </div>  <script>
-    let recipes = [];
-    let prices = {};
+    let recipes = [], prices = {};
 
     function showPopup(message) {
       const popup = document.createElement('div');
       popup.textContent = message;
       popup.style.position = 'fixed';
-      popup.style.top = `${40 + document.querySelectorAll('div.popup').length * 40}px`;
+      popup.style.top = '20px';
       popup.style.left = '50%';
       popup.style.transform = 'translateX(-50%)';
       popup.style.background = '#333';
@@ -59,19 +53,15 @@
       popup.style.padding = '10px 20px';
       popup.style.borderRadius = '5px';
       popup.style.zIndex = 9999;
-      popup.classList.add('popup');
       document.body.appendChild(popup);
       setTimeout(() => document.body.removeChild(popup), 2000);
     }
 
-    function loadJSON(path, successCallback, failCallback) {
-      fetch(path + '?cacheBust=' + new Date().getTime())
-        .then(response => {
-          if (!response.ok) throw new Error('HTTP error');
-          return response.json();
-        })
-        .then(data => successCallback(data))
-        .catch(err => failCallback(err));
+    function loadJSON(path, success, fail) {
+      fetch(path + '?cache=' + new Date().getTime())
+        .then(res => res.ok ? res.json() : Promise.reject(res))
+        .then(success)
+        .catch(fail);
     }
 
     function populateRecipeSelect() {
@@ -95,22 +85,19 @@
       const inputType = document.getElementById('input-type').value;
       const grams = parseFloat(document.getElementById('input-grams').value);
       if (!recipe || isNaN(grams)) return;
-
-      document.getElementById("item-weight-display").textContent = `Item Weight: ${recipe.itemWeightGrams} g`;
-
       let flourWeight = inputType === 'flour' ? grams : grams / (1 + totalExtraPercent(recipe));
 
-      const ingTbody = document.getElementById('ingredients-table').querySelector('tbody');
+      const ingTbody = document.querySelector('#ingredients-table tbody');
       ingTbody.innerHTML = '';
       let totalCost = 0;
+
       recipe.ingredients.forEach(ing => {
         const row = document.createElement('tr');
         const amount = flourWeight * (ing.percent / 100);
-
         const brands = Object.keys(prices[ing.name] || {});
-        const selectedBrand = brands[0] || "";
-        const pricePerKg = prices[ing.name]?.[selectedBrand] || 0;
-        const cost = pricePerKg * (amount / 1000);
+        const brand = brands[0] || '';
+        const price = prices[ing.name]?.[brand] || 0;
+        const cost = price * (amount / 1000);
         totalCost += cost;
 
         row.innerHTML = `
@@ -126,19 +113,19 @@
         ingTbody.appendChild(row);
       });
 
-      const extraTbody = document.getElementById('extras-table').querySelector('tbody');
+      const extraTbody = document.querySelector('#extras-table tbody');
       extraTbody.innerHTML = '';
       recipe.extras.forEach(extra => {
         const brands = Object.keys(prices[extra.name] || {});
-        const selectedBrand = brands[0] || "";
-        const pricePerKg = prices[extra.name]?.[selectedBrand] || 0;
-        const cost = pricePerKg * (extra.perUnitGrams / 1000);
+        const brand = brands[0] || '';
+        const price = prices[extra.name]?.[brand] || 0;
+        const cost = price * (extra.perUnitGrams / 1000);
         totalCost += cost;
 
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${extra.name}</td>
-          <td><input type="number" value="${extra.perUnitGrams}" oninput="updateExtraGrams(this, '${extra.name}')"></td>
+          <td><input class="small-input" type="number" value="${extra.perUnitGrams}" onchange="extra.perUnitGrams = parseFloat(this.value) || 0; handleRecipeChange()"></td>
           <td>
             <select onchange="updateBrand(this, '${extra.name}', ${extra.perUnitGrams}, this.parentElement.nextElementSibling)">
               ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
@@ -149,44 +136,32 @@
       });
 
       document.getElementById('total-cost').textContent = totalCost.toFixed(2);
-      updateSuggestedPrice(totalCost, recipe);
+      updateSuggestedPrice(totalCost, recipe.itemWeightGrams || 60);
     }
 
-    function updateExtraGrams(input, name) {
-      const recipe = recipes[document.getElementById('recipe-select').value];
-      const extra = recipe.extras.find(e => e.name === name);
-      if (extra) extra.perUnitGrams = parseFloat(input.value) || 0;
-      handleRecipeChange();
+    function updateSuggestedPrice(totalCost, itemWeightGrams) {
+      const e = parseFloat(document.getElementById('electricity').value) || 0;
+      const w = parseFloat(document.getElementById('water').value) || 0;
+      const g = parseFloat(document.getElementById('gas').value) || 0;
+      const h = parseFloat(document.getElementById('hours').value) || 0;
+      const wage = parseFloat(document.getElementById('wage').value) || 0;
+      const items = parseFloat(document.getElementById('items').value) || 1;
+      const markup = parseFloat(document.getElementById('markup').value) || 2;
+
+      const utilityCost = (e + w + g) / (20 * items);
+      const laborCost = (h * wage) / items;
+      const total = totalCost + utilityCost + laborCost;
+
+      document.getElementById('suggested-price').textContent = (total * markup).toFixed(2);
     }
 
-    function updateBrand(selectEl, name, amount, costTd) {
-      const brand = selectEl.value;
+    function updateBrand(select, name, amount, td) {
+      const brand = select.value;
       const price = prices[name]?.[brand] || 0;
       const cost = price * (amount / 1000);
-      costTd.textContent = cost.toFixed(2);
-      showPopup(`${name} price updated (${brand})`);
+      td.textContent = cost.toFixed(2);
+      showPopup(`${name} updated: ${brand}`);
       handleRecipeChange();
-    }
-
-    function updateSuggestedPrice(totalCost, recipe) {
-      const electricity = parseFloat(document.getElementById('electricity').value) || 0;
-      const water = parseFloat(document.getElementById('water').value) || 0;
-      const gas = parseFloat(document.getElementById('gas').value) || 0;
-      const hours = parseFloat(document.getElementById('labor-hours').value) || 0;
-      const rate = parseFloat(document.getElementById('labor-rate').value) || 0;
-      const days = parseFloat(document.getElementById('prod-days').value) || 1;
-      const itemsPerDay = parseFloat(document.getElementById('items-day').value) || 1;
-      const markup = parseFloat(document.getElementById('markup').value) || 0;
-
-      const monthlyUtil = electricity + water + gas;
-      const monthlyLabor = hours * rate * days;
-      const monthlyItems = itemsPerDay * days;
-
-      const perItemUtility = monthlyUtil / monthlyItems;
-      const perItemLabor = monthlyLabor / monthlyItems;
-      const suggested = (totalCost + perItemUtility + perItemLabor) * (1 + markup / 100);
-
-      document.getElementById('suggested-price').textContent = suggested.toFixed(2);
     }
 
     function totalExtraPercent(recipe) {
