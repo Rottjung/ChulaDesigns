@@ -40,6 +40,10 @@
       {
         "name": "Salt",
         "perUnitGrams": 1
+      },
+      {
+        "name": "Filling",
+        "perUnitGrams": 4
       }
     ]
   },
