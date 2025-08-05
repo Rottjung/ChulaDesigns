@@ -60,7 +60,9 @@
     <label>Hourly wage: <input type="number" id="hour-wage" value="50" class="input-short" oninput="handleRecipeChange()"> THB</label>
     <label>Items/day: <input type="number" id="items-day" value="175" class="input-short" oninput="handleRecipeChange()"></label>
     <label>Markup multiplier: <input type="number" step="0.1" id="markup" value="2.5" class="input-short" oninput="handleRecipeChange()"></label>
-  </div>  <h2>Suggested Price per Item: <span id="suggested-price">0</span> THB</h2>  <script>
+  </div>  <h2>Suggested Price per Item: <span id="suggested-price">0</span> THB</h2>
+  <p>Suggested Total: <span id="suggested-total">0</span> THB</p>
+  <p>Estimated Profit: <span id="estimated-profit">0</span> THB</p>  <script>
     let recipes = [];
     let prices = {};
 
@@ -224,8 +226,13 @@
       const monthlyItems = days * dailyItems;
       const overheadPerItem = monthlyCost / monthlyItems;
 
-      const suggested = (totalCost + overheadPerItem) * markup;
-      document.getElementById('suggested-price').textContent = suggested.toFixed(2);
+      const suggestedPerItem = (totalCost / itemsPerBatch + overheadPerItem) * markup;
+      const suggestedTotal = suggestedPerItem * itemsPerBatch;
+      const profit = suggestedTotal - totalCost - (overheadPerItem * itemsPerBatch);
+
+      document.getElementById('suggested-price').textContent = suggestedPerItem.toFixed(2);
+      document.getElementById('suggested-total').textContent = suggestedTotal.toFixed(2);
+      document.getElementById('estimated-profit').textContent = profit.toFixed(2);
     }
 
     loadJSON('recipes.json', data => { recipes = data; populateRecipeSelect(); showPopup('Recipes loaded'); }, err => showPopup('Failed to load recipes'));
