@@ -49,7 +49,7 @@
     </thead>
     <tbody></tbody>
   </table>  <h2>Total Ingredient Cost: <span id="total-cost">0</span> THB</h2>
-  <p>Number of Items: <span id="number-of-items">0</span></p>
+  <p>Number of Items: <input type="number" id="number-of-items" class="input-short" oninput="handleItemsChange()"></p>
   <p>Cost per Item: <span id="cost-per-item">0</span> THB</p>  <div class="suggested-column">
     <label>Electricity/month: <input type="number" id="electricity" value="3600" class="input-short" oninput="handleRecipeChange()"> THB</label>
     <label>Water/month: <input type="number" id="water" value="200" class="input-short" oninput="handleRecipeChange()"> THB</label>
@@ -111,6 +111,7 @@
       document.getElementById('item-weight').value = recipe.itemWeightGrams || 1;
       let flourWeight = inputType === 'flour' ? grams : grams / (1 + totalExtraPercent(recipe));
       const itemsPerBatch = Math.max(1, grams / (recipe.itemWeightGrams || 1));
+      document.getElementById('number-of-items').value = itemsPerBatch.toFixed(0);
 
       const ingTbody = document.getElementById('ingredients-table').querySelector('tbody');
       ingTbody.innerHTML = '';
@@ -162,7 +163,6 @@
       });
 
       document.getElementById('total-cost').textContent = totalCost.toFixed(2);
-      document.getElementById('number-of-items').textContent = itemsPerBatch.toFixed(0);
       document.getElementById('cost-per-item').textContent = (totalCost / itemsPerBatch).toFixed(2);
       updateSuggestedPrice(totalCost, recipe);
     }
@@ -170,6 +170,13 @@
     function handleItemWeightChange() {
       const recipe = recipes[document.getElementById('recipe-select').value];
       recipe.itemWeightGrams = parseFloat(document.getElementById('item-weight').value) || 1;
+      handleRecipeChange();
+    }
+
+    function handleItemsChange() {
+      const items = parseFloat(document.getElementById('number-of-items').value) || 1;
+      const itemWeight = parseFloat(document.getElementById('item-weight').value) || 1;
+      document.getElementById('input-grams').value = (items * itemWeight).toFixed(1);
       handleRecipeChange();
     }
 
@@ -202,7 +209,7 @@
       });
 
       document.getElementById('total-cost').textContent = total.toFixed(2);
-      document.getElementById('number-of-items').textContent = itemsPerBatch.toFixed(0);
+      document.getElementById('number-of-items').value = itemsPerBatch.toFixed(0);
       document.getElementById('cost-per-item').textContent = (total / itemsPerBatch).toFixed(2);
       updateSuggestedPrice(total, recipe);
     }
