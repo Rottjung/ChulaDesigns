@@ -107,6 +107,7 @@
       if (!recipe || isNaN(grams)) return;
       document.getElementById('item-weight').value = recipe.itemWeightGrams || 1;
       let flourWeight = inputType === 'flour' ? grams : grams / (1 + totalExtraPercent(recipe));
+      const itemsPerBatch = Math.max(1, grams / (recipe.itemWeightGrams || 1));
 
       const ingTbody = document.getElementById('ingredients-table').querySelector('tbody');
       ingTbody.innerHTML = '';
@@ -140,7 +141,7 @@
         const brands = Object.keys(prices[extra.name] || {});
         const selectedBrand = brands[0] || "";
         const pricePerKg = prices[extra.name]?.[selectedBrand] || 0;
-        const cost = pricePerKg * (extra.perUnitGrams / 1000);
+        const cost = pricePerKg * (extra.perUnitGrams / 1000) * itemsPerBatch;
         totalCost += cost;
 
         const row = document.createElement('tr');
