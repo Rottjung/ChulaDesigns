@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brood Bakery Calculator</title>
@@ -141,8 +140,9 @@
         const brands = Object.keys(prices[extra.name] || {});
         const selectedBrand = brands[0] || "";
         const pricePerKg = prices[extra.name]?.[selectedBrand] || 0;
-        const cost = pricePerKg * (extra.perUnitGrams / 1000) * itemsPerBatch;
-        totalCost += cost;
+        const costPerItem = pricePerKg * (extra.perUnitGrams / 1000);
+        const totalExtraCost = costPerItem * itemsPerBatch;
+        totalCost += totalExtraCost;
 
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -153,7 +153,7 @@
               ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
             </select>
           </td>
-          <td>${cost.toFixed(2)}</td>`;
+          <td>${costPerItem.toFixed(2)}</td>`;
         extraTbody.appendChild(row);
       });
 
@@ -184,10 +184,18 @@
 
     function updateTotalCost() {
       let total = 0;
-      document.querySelectorAll('#ingredients-table tbody tr').forEach(row => total += parseFloat(row.cells[4].textContent) || 0);
-      document.querySelectorAll('#extras-table tbody tr').forEach(row => total += parseFloat(row.cells[3].textContent) || 0);
-      document.getElementById('total-cost').textContent = total.toFixed(2);
+      document.querySelectorAll('#ingredients-table tbody tr').forEach(row => {
+        total += parseFloat(row.cells[4].textContent) || 0;
+      });
+
       const recipe = recipes[document.getElementById('recipe-select').value];
+      const itemsPerBatch = Math.max(1, parseFloat(document.getElementById('input-grams').value) / (recipe.itemWeightGrams || 1));
+      document.querySelectorAll('#extras-table tbody tr').forEach(row => {
+        const costPerItem = parseFloat(row.cells[3].textContent) || 0;
+        total += costPerItem * itemsPerBatch;
+      });
+
+      document.getElementById('total-cost').textContent = total.toFixed(2);
       updateSuggestedPrice(total, recipe);
     }
 
