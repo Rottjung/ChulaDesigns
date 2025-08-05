@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head>
-  <meta charset="UTF-8" />
+<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brood Bakery Calculator</title>
   <style>
@@ -50,7 +49,9 @@
       <tr><th>Ingredient</th><th>Grams per Item</th><th>Brand</th><th>Cost per Item (THB)</th></tr>
     </thead>
     <tbody></tbody>
-  </table>  <h2>Total Ingredient Cost: <span id="total-cost">0</span> THB</h2>  <div class="suggested-column">
+  </table>  <h2>Total Ingredient Cost: <span id="total-cost">0</span> THB</h2>
+  <p>Number of Items: <span id="number-of-items">0</span></p>
+  <p>Cost per Item: <span id="cost-per-item">0</span> THB</p>  <div class="suggested-column">
     <label>Electricity/month: <input type="number" id="electricity" value="3600" class="input-short" oninput="handleRecipeChange()"> THB</label>
     <label>Water/month: <input type="number" id="water" value="200" class="input-short" oninput="handleRecipeChange()"> THB</label>
     <label>Gas/month: <input type="number" id="gas" value="430" class="input-short" oninput="handleRecipeChange()"> THB</label>
@@ -158,6 +159,8 @@
       });
 
       document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+      document.getElementById('number-of-items').textContent = itemsPerBatch.toFixed(0);
+      document.getElementById('cost-per-item').textContent = (totalCost / itemsPerBatch).toFixed(2);
       updateSuggestedPrice(totalCost, recipe);
     }
 
@@ -196,6 +199,8 @@
       });
 
       document.getElementById('total-cost').textContent = total.toFixed(2);
+      document.getElementById('number-of-items').textContent = itemsPerBatch.toFixed(0);
+      document.getElementById('cost-per-item').textContent = (total / itemsPerBatch).toFixed(2);
       updateSuggestedPrice(total, recipe);
     }
 
@@ -225,5 +230,4 @@
 
     loadJSON('recipes.json', data => { recipes = data; populateRecipeSelect(); showPopup('Recipes loaded'); }, err => showPopup('Failed to load recipes'));
     loadJSON('ingredientPrices.json', data => { prices = data; showPopup('Prices loaded'); }, err => showPopup('Failed to load prices'));
-  </script></body>
-</html>
+  </script></body></html>
