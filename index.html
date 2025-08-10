@@ -35,7 +35,6 @@
     #builder-table th { text-align: left; }
     #builder-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
     .muted { color: #666; font-size: 0.95em; }
-    .invalid { outline: 2px solid #d33; }
   </style>
 </head>
 <body>
@@ -156,9 +155,6 @@
         <input type="number" id="rb-item-weight" class="input-short" value="1000">
       </label>
       <div class="muted">Ingredients are baker’s percentages relative to total flour (multiple flours allowed).</div>
-
-      <!-- Datalist fed from ingredientPrices.json -->
-      <datalist id="ingredient-list"></datalist>
 
       <table id="builder-table">
         <thead>
@@ -425,37 +421,38 @@
     }
 
     /* =========================
-       RECIPE BUILDER (localStorage + import/export + price DB list)
+       RECIPE BUILDER (select dropdowns from price DB)
        ========================= */
-    function rbIngredientOptions() {
+    function rbPriceNames() {
       return Object.keys(prices || {});
     }
 
-    function rbApplyIngredientList() {
-      const list = document.getElementById('ingredient-list');
-      if (!list) return;
-      const names = rbIngredientOptions();
-      list.innerHTML = names.map(n => `<option value="${n}"></option>`).join('');
+    function rbDefaultIngredient(names) {
+      return names.includes('none') ? 'none' : (names[0] || '');
+    }
+
+    function rbOptionsHTML(selectedName) {
+      const names = rbPriceNames();
+      const effective = (selectedName && names.includes(selectedName))
+        ? selectedName
+        : rbDefaultIngredient(names);
+      return names.map(n => `<option value="${n}" ${n === effective ? 'selected' : ''}>${n}</option>`).join('');
     }
 
     function rbAddRow(name = '', percent = '') {
       const tbody = document.getElementById('builder-body');
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><input type="text" placeholder="ingredient" list="ingredient-list" value="${name}"
-              oninput="rbValidateName(this)" onblur="rbValidateName(this)"></td>
+        <td>
+          <select class="rb-ing-select" onchange="rbUpdateSummary()">
+            ${rbOptionsHTML(name)}
+          </select>
+        </td>
         <td><input type="number" step="0.1" placeholder="%" value="${percent}" oninput="rbUpdateSummary()"></td>
         <td><button onclick="this.closest('tr').remove(); rbUpdateSummary();">Remove</button></td>
       `;
       tbody.appendChild(tr);
       rbUpdateSummary();
-    }
-
-    function rbValidateName(input) {
-      const name = (input.value || '').trim();
-      const known = (prices && Object.prototype.hasOwnProperty.call(prices, name));
-      input.classList.toggle('invalid', name && !known);
-      input.title = (!known && name) ? 'Not found in price database' : '';
     }
 
     function rbClearRows() {
@@ -469,10 +466,11 @@
 
       const rows = Array.from(document.querySelectorAll('#builder-body tr'));
       const ingredients = rows.map(tr => {
-        const tds = tr.querySelectorAll('td');
+        const sel = tr.querySelector('.rb-ing-select');
+        const pct = tr.querySelector('td:nth-child(2) input');
         return {
-          name: (tds[0].querySelector('input').value || '').trim(),
-          percent: parseFloat(tds[1].querySelector('input').value) || 0
+          name: sel ? sel.value : '',
+          percent: parseFloat(pct.value) || 0
         };
       }).filter(i => i.name.length > 0);
 
@@ -484,19 +482,6 @@
       const totalPct = r.ingredients.reduce((a, i) => a + (i.percent || 0), 0);
       document.getElementById('rb-summary').textContent =
         `Ingredients: ${r.ingredients.length} | Total baker’s %: ${totalPct.toFixed(1)}%`;
-    }
-
-    function getUserRecipes() {
-      try {
-        const raw = localStorage.getItem('brood_user_recipes');
-        if (!raw) return [];
-        const arr = JSON.parse(raw);
-        return Array.isArray(arr) ? arr : [];
-      } catch (e) { return []; }
-    }
-
-    function setUserRecipes(arr) {
-      localStorage.setItem('brood_user_recipes', JSON.stringify(arr || []));
     }
 
     function rbSaveLocal() {
@@ -548,10 +533,19 @@
       reader.readAsText(file);
     }
 
+    // Refresh builder selects after prices are loaded (preserve chosen values where possible)
+    function rbRefreshSelects() {
+      const selects = document.querySelectorAll('.rb-ing-select');
+      selects.forEach(sel => {
+        const chosen = sel.value;
+        sel.innerHTML = rbOptionsHTML(chosen);
+      });
+    }
+
     /* =========================
        STARTUP
        ========================= */
-    // Pre-fill a few default rows
+    // Start with 3 rows; "none" will be selected by default once prices load (if it exists)
     rbAddRow('Bread Flour', 100);
     rbAddRow('Water', 70);
     rbAddRow('Salt', 2);
@@ -570,7 +564,7 @@
     loadJSON('ingredientPrices.json',
       data => {
         prices = data || {};
-        rbApplyIngredientList(); // populate datalist from price DB
+        rbRefreshSelects(); // populate builder selects from price DB (preserving selection when possible)
         showPopup('Prices loaded');
       },
       err => showPopup('Failed to load prices')
