@@ -89,7 +89,7 @@ function handleRecipeChange() {
       <td>${ing.percent}%</td>
       <td>
         <select onchange="updateBrand(this, '${ing.name}', ${amount}, this.parentElement.nextElementSibling)">
-          ${brands.map(b => `<option value="\${b}">\${b}</option>`).join('')}
+          ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
         </select>
       </td>
       <td>${cost.toFixed(2)}</td>`;
@@ -111,7 +111,7 @@ function handleRecipeChange() {
       <td><input type="number" value="${extra.perUnitGrams}" class="input-short" oninput="updateExtraGrams(${idx}, this.value)"></td>
       <td>
         <select onchange="updateBrand(this, '${extra.name}', ${extra.perUnitGrams}, this.parentElement.nextElementSibling)">
-          ${brands.map(b => `<option value="\${b}">\${b}</option>`).join('')}
+          ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
         </select>
       </td>
       <td>${costPerItem.toFixed(2)}</td>`;
