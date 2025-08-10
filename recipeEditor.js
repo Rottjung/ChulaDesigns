@@ -1,4 +1,6 @@
 // Uses globals & utils from calculator.js
+// Expects: recipes, prices, baseRecipesCache,
+//          showPopup, getUserRecipes, setUserRecipes, mergeRecipes, populateRecipeSelect
 
 function rbPriceNames() { return Object.keys(prices || {}); }
 function rbDefaultIngredient(names) {
@@ -62,6 +64,7 @@ function rbUpdateSummary() {
     `Ingredients: ${r.ingredients.length} | Total baker’s %: ${totalPct.toFixed(1)}%`;
 }
 
+// ----- Local storage helpers -----
 function getUserRecipes() {
   try {
     const raw = localStorage.getItem('brood_user_recipes');
@@ -73,8 +76,8 @@ function getUserRecipes() {
 function setUserRecipes(arr) {
   localStorage.setItem('brood_user_recipes', JSON.stringify(arr || []));
 }
-function mergeRecipes(base, user) { return [...user, ...base]; }
 
+// Save current builder form to local recipes (does NOT touch recipes.json)
 function rbSaveLocal() {
   const r = rbCollectRecipe();
   if (!r.name) { showPopup('Please enter a recipe name.'); return; }
@@ -85,20 +88,37 @@ function rbSaveLocal() {
   if (i >= 0) mine[i] = r; else mine.push(r);
   setUserRecipes(mine);
 
+  // Refresh dropdown with merged list (user overrides base)
   recipes = mergeRecipes(baseRecipesCache, mine);
   populateRecipeSelect();
 
   showPopup('Saved to My Recipes (local).');
 }
 
-function rbExport() {
-  const data = JSON.stringify(getUserRecipes(), null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'my_recipes.json';
-  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+// Build merged list of base + user recipes (user overrides by name)
+function rbAllRecipesMerged() {
+  const base = baseRecipesCache || [];
+  const user = getUserRecipes();
+  const byName = new Map();
+  base.forEach(r => byName.set((r.name || '').toLowerCase(), r));
+  user.forEach(r => byName.set((r.name || '').toLowerCase(), r)); // user wins
+  return Array.from(byName.values());
 }
 
+// Export merged recipes (keeps built-ins + your local edits/additions)
+function rbExport() {
+  const data = JSON.stringify(rbAllRecipesMerged(), null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'recipes_all.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Import replaces your local recipe set, then merges with base for the UI
 function rbImport(e) {
   const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
