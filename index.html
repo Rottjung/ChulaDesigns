@@ -40,7 +40,6 @@
 
   <label for="recipe-select">Choose Recipe:</label>
   <select id="recipe-select" onchange="handleRecipeChange()"></select>
-  <br />
   <label>Item weight (g):
     <input type="number" id="item-weight" class="input-short" oninput="handleItemWeightChange()">
   </label>
@@ -121,27 +120,14 @@
       <input type="number" step="0.1" id="markup" value="2.5" class="input-short" oninput="handleRecipeChange()">
     </label>
     
-    <h2>Overhead per Item: <span id="overhead-per-item">0</span> THB</h2>
-    <p>
+      <h2>Overhead per Item: <span id="overhead-per-item">0</span> THB</h2>
       <h2>Total Item Cost (Ingredients + Overhead): <span id="total-item-cost">0</span> THB</h2>
-    </p>
-    <!-- Batch totals -->
-    <p>
-      <b>Total Overhead (Batch): <span id="overhead-batch">0</span> THB</b>
-    </p>
-    <p>
-      <b>Total Batch Cost (Ingredients + Overhead): <span id="total-batch-cost">0</span> THB</b>
-    </p>
-    <p>
-      <b>Suggested Total (Batch): <span id="suggested-total-batch">0</span> THB</b>
-    </p>
-    <h2>Suggested Price per Item: <span id="suggested-price">0</span> THB</h2>
-    <p>
-      Suggested Total: <span id="suggested-total">0</span> THB
-    </p>
-    <p>
-      Estimated Profit: <span id="estimated-profit">0</span> THB
-    </p>
+      <h2>Suggested Price per Item: <span id="suggested-price">0</span> THB</h2>
+    <!-- NEW batch totals -->
+      <h2>Total Overhead (Batch): <span id="overhead-batch">0</span> THB</h2>
+      <h2>Total Batch Cost (Ingredients + Overhead): <span id="total-batch-cost">0</span> THB</h2>
+      <h2>Suggested Total (Batch): <span id="suggested-total-batch">0</span> THB</h2>
+      <h2>Estimated Profit: <span id="estimated-profit">0</span> THB</h2>
   </div>
 
   <script>
@@ -300,36 +286,27 @@
     }
 
     function updateSuggestedPrice(totalCost, recipe) {
-      // Safe numeric reads
-      const num = (v) => {
-        const n = parseFloat(v);
-        return Number.isFinite(n) ? n : 0;
-      };
-
-      const itemWeight = num((recipe && recipe.itemWeightGrams) || 1) || 1;
-      const gramsPlanned = num(document.getElementById('input-grams').value);
-      const itemsPerBatch = Math.max(1, gramsPlanned / itemWeight);
-
-      const elec = num(document.getElementById('electricity').value);
-      const water = num(document.getElementById('water').value);
-      const gas = num(document.getElementById('gas').value);
-      const days = num(document.getElementById('work-days').value);
-      const hours = num(document.getElementById('hours-day').value);
-      const wage = num(document.getElementById('hour-wage').value);
-      const dailyItems = num(document.getElementById('items-day').value);
-      const misc = num(document.getElementById('misc').value);
-      const markup = Math.max(0, num(document.getElementById('markup').value));
+      const itemWeight = recipe.itemWeightGrams || 1;
+      const itemsPerBatch = Math.max(1, parseFloat(document.getElementById('input-grams').value) / itemWeight);
+      const elec = parseFloat(document.getElementById('electricity').value);
+      const water = parseFloat(document.getElementById('water').value);
+      const gas = parseFloat(document.getElementById('gas').value);
+      const days = parseFloat(document.getElementById('work-days').value);
+      const hours = parseFloat(document.getElementById('hours-day').value);
+      const wage = parseFloat(document.getElementById('hour-wage').value);
+      const dailyItems = parseFloat(document.getElementById('items-day').value);
+      const misc = parseFloat(document.getElementById('misc').value);
+      const markup = parseFloat(document.getElementById('markup').value);
 
       const monthlyCost = elec + water + gas + (days * hours * wage) + misc;
-      const monthlyItems = Math.max(1, days * dailyItems); // avoid /0
-
+      const monthlyItems = days * dailyItems;
       const overheadPerItem = monthlyCost / monthlyItems;
-      document.getElementById('overhead-per-item').textContent = overheadPerItem.toFixed(2);
 
-      // Per-item economics
+      // Per-item
+      document.getElementById('overhead-per-item').textContent = overheadPerItem.toFixed(2);
       const totalPerItem = (totalCost / itemsPerBatch) + overheadPerItem;
       document.getElementById('total-item-cost').textContent = totalPerItem.toFixed(2);
-      const suggestedPerItem = totalPerItem * (markup || 0);
+      const suggestedPerItem = totalPerItem * markup;
       document.getElementById('suggested-price').textContent = suggestedPerItem.toFixed(2);
 
       // Batch totals
@@ -344,17 +321,21 @@
       const stb = document.getElementById('suggested-total-batch');
       if (stb) stb.textContent = suggestedTotalBatch.toFixed(2);
 
-      // Legacy totals kept in sync
-      const suggestedTotal = suggestedTotalBatch;
-      const profit = suggestedTotalBatch - totalBatchCost;
-      const st = document.getElementById('suggested-total');
-      if (st) st.textContent = suggestedTotal.toFixed(2);
-      const ep = document.getElementById('estimated-profit');
-      if (ep) ep.textContent = profit.toFixed(2);
+      // Existing totals for reference
+      const suggestedTotal = suggestedPerItem * itemsPerBatch;
+      const profit = suggestedTotal - totalCost - batchOverhead;
+      document.getElementById('suggested-total').textContent = suggestedTotal.toFixed(2);
+      document.getElementById('estimated-profit').textContent = profit.toFixed(2);
     }
 
-    loadJSON('recipes.json', data => { recipes = data; populateRecipeSelect(); showPopup('Recipes loaded'); }, err => showPopup('Failed to load recipes'));
-    loadJSON('ingredientPrices.json', data => { prices = data; showPopup('Prices loaded'); }, err => showPopup('Failed to load prices'));
+    loadJSON('recipes.json',
+      data => { recipes = data; populateRecipeSelect(); showPopup('Recipes loaded'); },
+      err => showPopup('Failed to load recipes')
+    );
+    loadJSON('ingredientPrices.json',
+      data => { prices = data; showPopup('Prices loaded'); },
+      err => showPopup('Failed to load prices')
+    );
   </script>
 </body>
 </html>
