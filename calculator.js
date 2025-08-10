@@ -3,17 +3,6 @@ window.recipes = [];
 window.prices = {};
 window.baseRecipesCache = [];
 
-// New: DB readiness gating
-let recipesReady = false;
-let pricesReady = false;
-let appInitialized = false;
-
-// New: brand selection cache (persists while page is open)
-const brandCache = {
-  ingredient: {}, // key: ingredient name -> brand
-  extra: {}       // key: extra name -> brand
-};
-
 function showPopup(message) {
   const popup = document.createElement('div');
   popup.className = 'popup';
@@ -31,11 +20,17 @@ function switchTab(which) {
   document.getElementById('panel-builder').classList.toggle('active', which === 'builder');
 }
 
-function loadJSON(path, success, fail) {
-  fetch(path + '?cacheBust=' + new Date().getTime())
-    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-    .then(data => success(data))
-    .catch(err => { if (fail) fail(err); });
+function fetchJSON(path) {
+  return fetch(path + '?cacheBust=' + new Date().getTime()).then(async (r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ${path}`);
+    const txt = await r.text();
+    try {
+      return JSON.parse(txt);
+    } catch (e) {
+      console.error('JSON parse error for', path, e, txt.slice(0, 2000));
+      throw new Error(`Invalid JSON in ${path}: ${e.message}`);
+    }
+  });
 }
 
 function getUserRecipes() {
@@ -50,6 +45,27 @@ function setUserRecipes(arr) {
   localStorage.setItem('brood_user_recipes', JSON.stringify(arr || []));
 }
 function mergeRecipes(base, user) { return [...user, ...base]; }
+
+// ===== Brand cache (persists across reloads) =====
+const BRAND_CACHE_KEY = 'brood_brand_cache_v1';
+function loadBrandCache() {
+  try {
+    const raw = localStorage.getItem(BRAND_CACHE_KEY);
+    const obj = raw ? JSON.parse(raw) : {};
+    return {
+      ingredient: obj.ingredient || {},
+      extra: obj.extra || {},
+    };
+  } catch {
+    return { ingredient: {}, extra: {} };
+  }
+}
+function saveBrandCache() {
+  try {
+    localStorage.setItem(BRAND_CACHE_KEY, JSON.stringify(brandCache));
+  } catch {}
+}
+const brandCache = loadBrandCache();
 
 function populateRecipeSelect() {
   const select = document.getElementById('recipe-select');
@@ -67,16 +83,8 @@ function populateRecipeSelect() {
   }
 }
 
-// Ensure both DBs are ready before initializing UI with a recipe
-function tryInitializeApp() {
-  if (appInitialized || !recipesReady || !pricesReady) return;
-  appInitialized = true;
-  populateRecipeSelect();
-}
-
 // ===== Calculator logic =====
 function handleRecipeChange() {
-  if (!appInitialized) return; // guard until DBs loaded
   const recipe = recipes[document.getElementById('recipe-select').value];
   const inputType = document.getElementById('input-type').value;
   const grams = parseFloat(document.getElementById('input-grams').value);
@@ -97,30 +105,37 @@ function handleRecipeChange() {
     const amount = flourWeight * (ing.percent / 100);
     const brands = Object.keys(prices[ing.name] || {});
 
-    // Brand persistence for INGREDIENTS
+    // Preferred brand (persisted)
     let chosenBrand = brandCache.ingredient[ing.name];
     if (!chosenBrand || !brands.includes(chosenBrand)) {
       chosenBrand = brands[0] || "";
-      if (chosenBrand) brandCache.ingredient[ing.name] = chosenBrand;
+      if (chosenBrand) { brandCache.ingredient[ing.name] = chosenBrand; saveBrandCache(); }
     }
 
     const pricePerKg = prices[ing.name]?.[chosenBrand] || 0;
     const cost = pricePerKg * (amount / 1000);
     totalCost += cost;
 
-    const opts = brands.map(b => `<option value="${b}" ${b === chosenBrand ? 'selected' : ''}>${b}</option>`).join('');
+    const selHtml = brands.map(b => `<option value="${b}">${b}</option>`).join('');
 
     row.innerHTML = `
       <td>${ing.name}</td>
       <td>${amount.toFixed(1)}</td>
       <td>${ing.percent}%</td>
       <td>
-        <select onchange="updateBrand(this, 'ingredient', '${ing.name}', ${amount}, this.parentElement.nextElementSibling)">
-          ${opts}
+        <select data-type="ingredient" data-name="${ing.name}" data-amount="${amount}">
+          ${selHtml}
         </select>
       </td>
       <td>${cost.toFixed(2)}</td>`;
     ingTbody.appendChild(row);
+
+    // Set selected programmatically (more reliable than selected attr)
+    const sel = row.querySelector('select');
+    sel.value = chosenBrand;
+    sel.addEventListener('change', (e) => {
+      updateBrand(sel, 'ingredient', ing.name, amount, sel.parentElement.nextElementSibling);
+    });
   });
 
   const extraTbody = document.querySelector('#extras-table tbody');
@@ -128,11 +143,10 @@ function handleRecipeChange() {
   (recipe.extras || []).forEach((extra, idx) => {
     const brands = Object.keys(prices[extra.name] || {});
 
-    // Brand persistence for EXTRAS
     let chosenBrand = brandCache.extra[extra.name];
     if (!chosenBrand || !brands.includes(chosenBrand)) {
       chosenBrand = brands[0] || "";
-      if (chosenBrand) brandCache.extra[extra.name] = chosenBrand;
+      if (chosenBrand) { brandCache.extra[extra.name] = chosenBrand; saveBrandCache(); }
     }
 
     const pricePerKg = prices[extra.name]?.[chosenBrand] || 0;
@@ -140,19 +154,23 @@ function handleRecipeChange() {
     const totalExtraCost = costPerItem * itemsPerBatch;
     totalCost += totalExtraCost;
 
-    const opts = brands.map(b => `<option value="${b}" ${b === chosenBrand ? 'selected' : ''}>${b}</option>`).join('');
-
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${extra.name}</td>
       <td><input type="number" value="${extra.perUnitGrams}" class="input-short" oninput="updateExtraGrams(${idx}, this.value)"></td>
       <td>
-        <select onchange="updateBrand(this, 'extra', '${extra.name}', ${extra.perUnitGrams}, this.parentElement.nextElementSibling)">
-          ${opts}
+        <select data-type="extra" data-name="${extra.name}" data-amount="${extra.perUnitGrams}">
+          ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
         </select>
       </td>
       <td>${costPerItem.toFixed(2)}</td>`;
     extraTbody.appendChild(row);
+
+    const sel = row.querySelector('select');
+    sel.value = chosenBrand;
+    sel.addEventListener('change', (e) => {
+      updateBrand(sel, 'extra', extra.name, extra.perUnitGrams, sel.parentElement.nextElementSibling);
+    });
   });
 
   document.getElementById('total-cost').textContent = totalCost.toFixed(2);
@@ -178,6 +196,7 @@ function updateBrand(selectEl, type, name, amount, costTd) {
   const brand = selectEl.value;
   if (type === 'ingredient') brandCache.ingredient[name] = brand;
   else brandCache.extra[name] = brand;
+  saveBrandCache();
 
   const price = prices[name]?.[brand] || 0;
   const cost = price * (amount / 1000); // amount is grams (for extras it's grams per item => cost per item)
@@ -257,26 +276,20 @@ function updateSuggestedPrice(totalCost, recipe) {
   const ep = document.getElementById('estimated-profit'); if (ep) ep.textContent = profit.toFixed(2);
 }
 
-// ===== Startup (wait for BOTH DBs) =====
-loadJSON('recipes.json',
-  data => {
-    baseRecipesCache = data || [];
+// ===== Startup: load BOTH DBs first =====
+Promise.all([ fetchJSON('recipes.json'), fetchJSON('ingredientPrices.json') ])
+  .then(([recData, priceData]) => {
+    baseRecipesCache = recData || [];
     const mine = getUserRecipes();
     recipes = mergeRecipes(baseRecipesCache, mine);
-    recipesReady = true;
-    document.dispatchEvent(new CustomEvent('recipesLoaded'));
-    tryInitializeApp();
-  },
-  () => showPopup('Failed to load recipes')
-);
-
-loadJSON('ingredientPrices.json',
-  data => {
-    prices = data || {};
-    pricesReady = true;
+    prices = priceData || {};
     showPopup(`Prices loaded (${Object.keys(prices).length} items)`);
+    populateRecipeSelect();
+    document.dispatchEvent(new CustomEvent('recipesLoaded'));
     document.dispatchEvent(new CustomEvent('pricesLoaded'));
-    tryInitializeApp();
-  },
-  () => showPopup('Failed to load prices')
-);
+  })
+  .catch(err => {
+    console.error('Startup load error:', err);
+    if (/recipes\.json/.test(String(err))) showPopup('Failed to load recipes');
+    if (/ingredientPrices\.json/.test(String(err))) showPopup('Failed to load prices');
+  });
