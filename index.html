@@ -1,14 +1,33 @@
-<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8" />  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brood Bakery Calculator</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
     select, input { margin: 5px; }
     table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 6px; }
-    .popup { position: fixed; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 20px; border-radius: 5px; z-index: 9999; margin-top: 10px; }
+    .popup {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 9999;
+      margin-top: 10px;
+    }
     .header-container { text-align: center; margin-bottom: 20px; }
     .header-title { font-size: 2.5em; margin: 0; }
     .header-subtitle { font-size: 1.2em; color: #666; }
-    .suggested-column { display: flex; flex-direction: column; max-width: 300px; margin-top: 20px; }
+    .suggested-column {
+      display: flex;
+      flex-direction: column;
+      max-width: 300px;
+      margin-top: 20px;
+    }
     .suggested-column label { margin-top: 8px; }
     .input-short { width: 100px; }
   </style>
@@ -18,48 +37,285 @@
     <h1 class="header-title">-= BROOD =-</h1>
     <div class="header-subtitle">Bakery-Calculator</div>
   </div>
-  <label for="recipe-select">Choose Recipe:</label> <select id="recipe-select" onchange="handleRecipeChange()"></select> 
-  <label>Item weight (g): <input type="number" id="item-weight" class="input-short" oninput="handleItemWeightChange()"></label><br />
-  <label for="input-type">Input Type:</label> <select id="input-type" onchange="handleRecipeChange()"> <option value="dough">Total Dough Weight</option> <option value="flour">Flour Only</option> </select> <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g
+
+  <label for="recipe-select">Choose Recipe:</label>
+  <select id="recipe-select" onchange="handleRecipeChange()"></select>
+  <label>Item weight (g):
+    <input type="number" id="item-weight" class="input-short" oninput="handleItemWeightChange()">
+  </label>
+  <br />
+
+  <label for="input-type">Input Type:</label>
+  <select id="input-type" onchange="handleRecipeChange()">
+    <option value="dough">Total Dough Weight</option>
+    <option value="flour">Flour Only</option>
+  </select>
+  <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g
 
   <h3>Ingredients</h3>
-  <table id="ingredients-table"><thead><tr><th>Ingredient</th><th>Amount (g)</th><th>Baker's %</th><th>Brand</th><th>Cost (THB)</th></tr></thead><tbody></tbody></table>
+  <table id="ingredients-table">
+    <thead>
+      <tr>
+        <th>Ingredient</th>
+        <th>Amount (g)</th>
+        <th>Baker's %</th>
+        <th>Brand</th>
+        <th>Cost (THB)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
   <h3>Extras (per item)</h3>
-  <table id="extras-table"><thead><tr><th>Ingredient</th><th>Grams per Item</th><th>Brand</th><th>Cost per Item (THB)</th></tr></thead><tbody></tbody></table>
+  <table id="extras-table">
+    <thead>
+      <tr>
+        <th>Ingredient</th>
+        <th>Grams per Item</th>
+        <th>Brand</th>
+        <th>Cost per Item (THB)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
   <h2>Total Ingredient Cost: <span id="total-cost">0</span> THB</h2>
-  <p>Number of Items: <input type="number" id="number-of-items" class="input-short" oninput="handleItemsChange()"></p>
+
+  <p>Number of Items:
+    <input type="number" id="number-of-items" class="input-short" oninput="handleItemsChange()">
+  </p>
+
+  <p>
+    <h2>Cost per Item: <span id="cost-per-item">0</span> THB</h2>
+  </p>
+
   <div class="suggested-column">
-    <label>Electricity/month: <input type="number" id="electricity" value="3600" class="input-short" oninput="handleRecipeChange()"> THB</label>
-    <label>Water/month: <input type="number" id="water" value="200" class="input-short" oninput="handleRecipeChange()"> THB</label>
-    <label>Gas/month: <input type="number" id="gas" value="430" class="input-short" oninput="handleRecipeChange()"> THB</label>
-    <label>Work days/month: <input type="number" id="work-days" value="20" class="input-short" oninput="handleRecipeChange()"></label>
-    <label>Hours/day: <input type="number" id="hours-day" value="12" class="input-short" oninput="handleRecipeChange()"></label>
-    <label>Hourly wage: <input type="number" id="hour-wage" value="50" class="input-short" oninput="handleRecipeChange()"> THB</label>
-    <label>Items/day: <input type="number" id="items-day" value="175" class="input-short" oninput="handleRecipeChange()"></label>
-    <label>Misc/month: <input type="number" id="misc" value="0" class="input-short" oninput="handleRecipeChange()"> THB</label>
-    <label>Markup multiplier: <input type="number" step="0.1" id="markup" value="2.5" class="input-short" oninput="handleRecipeChange()"></label>
-    <p><h2>Overhead per Item: <span id="overhead-per-item">0</span> THB</h2></p>
-    <p><h2>Total Item Cost (Ingredients + Overhead): <span id="total-item-cost">0</span> THB</h2></p>
-    <p><h2>Suggested Price per Item: <span id="suggested-price">0</span> THB</h2></p>
-    <p><h2>Total Overhead for Batch: <span id="total-overhead-batch">0</span> THB</h2></p>
-    <p><h2>Total Batch Cost (Ingredients + Overhead): <span id="total-batch-cost">0</span> THB</h2></p>
-    <p><h2>Suggested Price for Batch: <span id="suggested-batch-price">0</span> THB</h2></p>
+    <label>Electricity/month:
+      <input type="number" id="electricity" value="3600" class="input-short" oninput="handleRecipeChange()"> THB
+    </label>
+    <label>Water/month:
+      <input type="number" id="water" value="200" class="input-short" oninput="handleRecipeChange()"> THB
+    </label>
+    <label>Gas/month:
+      <input type="number" id="gas" value="430" class="input-short" oninput="handleRecipeChange()"> THB
+    </label>
+    <label>Work days/month:
+      <input type="number" id="work-days" value="20" class="input-short" oninput="handleRecipeChange()">
+    </label>
+    <label>Hours/day:
+      <input type="number" id="hours-day" value="12" class="input-short" oninput="handleRecipeChange()">
+    </label>
+    <label>Hourly wage:
+      <input type="number" id="hour-wage" value="50" class="input-short" oninput="handleRecipeChange()"> THB
+    </label>
+    <label>Items/day:
+      <input type="number" id="items-day" value="175" class="input-short" oninput="handleRecipeChange()">
+    </label>
+    <!-- Misc inserted between Items/day and Markup -->
+    <label>Misc/month:
+      <input type="number" id="misc" value="0" class="input-short" oninput="handleRecipeChange()"> THB
+    </label>
+    <label>Markup multiplier:
+      <input type="number" step="0.1" id="markup" value="2.5" class="input-short" oninput="handleRecipeChange()">
+    </label>
+
+    <p>
+      <h2>Overhead per Item: <span id="overhead-per-item">0</span> THB</h2>
+    </p>
+    <p>
+      <h2>Total Item Cost (Ingredients + Overhead): <span id="total-item-cost">0</span> THB</h2>
+    </p>
   </div>
+
+  <h2>Suggested Price per Item: <span id="suggested-price">0</span> THB</h2>
+  <p>Suggested Total: <span id="suggested-total">0</span> THB</p>
+  <p>Estimated Profit: <span id="estimated-profit">0</span> THB</p>
+
   <script>
     let recipes = [];
     let prices = {};
-    function showPopup(m){const p=document.createElement('div');p.className='popup';p.textContent=m;document.body.appendChild(p);document.querySelectorAll('.popup').forEach((el,i)=>el.style.top=`${20+i*50}px`);setTimeout(()=>p.remove(),2000);}
-    function loadJSON(path,ok,fail){fetch(path+'?cacheBust='+new Date().getTime()).then(r=>{if(!r.ok)throw new Error('HTTP error');return r.json();}).then(d=>ok(d)).catch(e=>fail(e));}
-    function populateRecipeSelect(){const s=document.getElementById('recipe-select');s.innerHTML='';recipes.forEach((r,i)=>{const o=document.createElement('option');o.value=i;o.textContent=r.name;s.appendChild(o);});if(recipes.length>0){s.selectedIndex=0;showPopup(`Auto-loaded: ${recipes[0].name}`);handleRecipeChange();}}
-    function handleRecipeChange(){const recipe=recipes[document.getElementById('recipe-select').value];const inputType=document.getElementById('input-type').value;const grams=parseFloat(document.getElementById('input-grams').value);if(!recipe||isNaN(grams))return;document.getElementById('item-weight').value=recipe.itemWeightGrams||1;let flourWeight=inputType==='flour'?grams:grams/(1+totalExtraPercent(recipe));const itemsPerBatch=Math.max(1,grams/(recipe.itemWeightGrams||1));document.getElementById('number-of-items').value=itemsPerBatch.toFixed(0);const ingTbody=document.getElementById('ingredients-table').querySelector('tbody');ingTbody.innerHTML='';let totalCost=0;recipe.ingredients.forEach(ing=>{const row=document.createElement('tr');const amount=flourWeight*(ing.percent/100);const brands=Object.keys(prices[ing.name]||{});const pricePerKg=prices[ing.name]?.[brands[0]||""]||0;const cost=pricePerKg*(amount/1000);totalCost+=cost;row.innerHTML=`<td>${ing.name}</td><td>${amount.toFixed(1)}</td><td>${ing.percent}%</td><td><select onchange="updateBrand(this, '${ing.name}', ${amount}, this.parentElement.nextElementSibling)">${brands.map(b=>`<option value="${b}">${b}</option>`).join('')}</select></td><td>${cost.toFixed(2)}</td>`;ingTbody.appendChild(row);});const extraTbody=document.getElementById('extras-table').querySelector('tbody');extraTbody.innerHTML='';recipe.extras.forEach((extra,idx)=>{const brands=Object.keys(prices[extra.name]||{});const pricePerKg=prices[extra.name]?.[brands[0]||""]||0;const costPerItem=pricePerKg*(extra.perUnitGrams/1000);const totalExtraCost=costPerItem*itemsPerBatch;totalCost+=totalExtraCost;extraTbody.innerHTML+=`<tr><td>${extra.name}</td><td><input type="number" value="${extra.perUnitGrams}" class="input-short" oninput="updateExtraGrams(${idx}, this.value)"></td><td><select onchange="updateBrand(this, '${extra.name}', ${extra.perUnitGrams}, this.parentElement.nextElementSibling)">${brands.map(b=>`<option value="${b}">${b}</option>`).join('')}</select></td><td>${costPerItem.toFixed(2)}</td></tr>`;});document.getElementById('total-cost').textContent=totalCost.toFixed(2);document.getElementById('cost-per-item').textContent=(totalCost/itemsPerBatch).toFixed(2);updateSuggestedPrice(totalCost,recipe);}
-    function handleItemWeightChange(){const r=recipes[document.getElementById('recipe-select').value];r.itemWeightGrams=parseFloat(document.getElementById('item-weight').value)||1;handleRecipeChange();}
-    function handleItemsChange(){const items=parseFloat(document.getElementById('number-of-items').value)||1;const w=parseFloat(document.getElementById('item-weight').value)||1;document.getElementById('input-grams').value=(items*w).toFixed(1);handleRecipeChange();}
-    function updateBrand(sel,name,amount,costTd){const brand=sel.value;const price=prices[name]?.[brand]||0;costTd.textContent=(price*(amount/1000)).toFixed(2);showPopup(`${name} price updated (${brand})`);updateTotalCost();}
-    function updateExtraGrams(i,v){const r=recipes[document.getElementById('recipe-select').value];r.extras[i].perUnitGrams=parseFloat(v);handleRecipeChange();}
-    function updateTotalCost(){let total=0;document.querySelectorAll('#ingredients-table tbody tr').forEach(row=>{total+=parseFloat(row.cells[4].textContent)||0;});const r=recipes[document.getElementById('recipe-select').value];const itemsPerBatch=Math.max(1,parseFloat(document.getElementById('input-grams').value)/(r.itemWeightGrams||1));document.querySelectorAll('#extras-table tbody tr').forEach(row=>{total+=(parseFloat(row.cells[3].textContent)||0)*itemsPerBatch;});document.getElementById('total-cost').textContent=total.toFixed(2);document.getElementById('number-of-items').value=itemsPerBatch.toFixed(0);document.getElementById('cost-per-item').textContent=(total/itemsPerBatch).toFixed(2);updateSuggestedPrice(total,r);}
-    function totalExtraPercent(r){return r.ingredients.reduce((a,i)=>a+(i.name.toLowerCase()==='bread flour'?0:i.percent),0)/100;}
-    function updateSuggestedPrice(totalCost,recipe){const itemWeight=recipe.itemWeightGrams||1;const itemsPerBatch=Math.max(1,parseFloat(document.getElementById('input-grams').value)/itemWeight);const elec=parseFloat(document.getElementById('electricity').value);const water=parseFloat(document.getElementById('water').value);const gas=parseFloat(document.getElementById('gas').value);const days=parseFloat(document.getElementById('work-days').value);const hours=parseFloat(document.getElementById('hours-day').value);const wage=parseFloat(document.getElementById('hour-wage').value);const dailyItems=parseFloat(document.getElementById('items-day').value);const misc=parseFloat(document.getElementById('misc').value);const markup=parseFloat(document.getElementById('markup').value);const monthlyCost=elec+water+gas+(days*hours*wage)+misc;const monthlyItems=days*dailyItems;const overheadPerItem=monthlyCost/monthlyItems;document.getElementById('overhead-per-item').textContent=overheadPerItem.toFixed(2);const totalItemCost=(totalCost/itemsPerBatch)+overheadPerItem;document.getElementById('total-item-cost').textContent=totalItemCost.toFixed(2);const suggestedPerItem=totalItemCost*markup;document.getElementById('suggested-price').textContent=suggestedPerItem.toFixed(2);const totalOverheadBatch=overheadPerItem*itemsPerBatch;document.getElementById('total-overhead-batch').textContent=totalOverheadBatch.toFixed(2);const totalBatchCost=totalCost+totalOverheadBatch;document.getElementById('total-batch-cost').textContent=totalBatchCost.toFixed(2);const suggestedBatchPrice=totalBatchCost*markup;document.getElementById('suggested-batch-price').textContent=suggestedBatchPrice.toFixed(2);}
-    loadJSON('recipes.json',d=>{recipes=d;populateRecipeSelect();showPopup('Recipes loaded');},e=>showPopup('Failed to load recipes'));
-    loadJSON('ingredientPrices.json',d=>{prices=d;showPopup('Prices loaded');},e=>showPopup('Failed to load prices'));
+
+    function showPopup(message) {
+      const popup = document.createElement('div');
+      popup.className = 'popup';
+      popup.textContent = message;
+      document.body.appendChild(popup);
+      const existingPopups = document.querySelectorAll('.popup');
+      existingPopups.forEach((el, i) => el.style.top = `${20 + i * 50}px`);
+      setTimeout(() => popup.remove(), 2000);
+    }
+
+    function loadJSON(path, successCallback, failCallback) {
+      fetch(path + '?cacheBust=' + new Date().getTime())
+        .then(response => {
+          if (!response.ok) throw new Error('HTTP error');
+          return response.json();
+        })
+        .then(data => successCallback(data))
+        .catch(err => failCallback(err));
+    }
+
+    function populateRecipeSelect() {
+      const select = document.getElementById('recipe-select');
+      select.innerHTML = '';
+      recipes.forEach((r, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = r.name;
+        select.appendChild(opt);
+      });
+      if (recipes.length > 0) {
+        select.selectedIndex = 0;
+        showPopup(`Auto-loaded: ${recipes[0].name}`);
+        handleRecipeChange();
+      }
+    }
+
+    function handleRecipeChange() {
+      const recipe = recipes[document.getElementById('recipe-select').value];
+      const inputType = document.getElementById('input-type').value;
+      const grams = parseFloat(document.getElementById('input-grams').value);
+      if (!recipe || isNaN(grams)) return;
+      document.getElementById('item-weight').value = recipe.itemWeightGrams || 1;
+      let flourWeight = inputType === 'flour' ? grams : grams / (1 + totalExtraPercent(recipe));
+      const itemsPerBatch = Math.max(1, grams / (recipe.itemWeightGrams || 1));
+      document.getElementById('number-of-items').value = itemsPerBatch.toFixed(0);
+
+      const ingTbody = document.getElementById('ingredients-table').querySelector('tbody');
+      ingTbody.innerHTML = '';
+      let totalCost = 0;
+
+      recipe.ingredients.forEach(ing => {
+        const row = document.createElement('tr');
+        const amount = flourWeight * (ing.percent / 100);
+        const brands = Object.keys(prices[ing.name] || {});
+        const selectedBrand = brands[0] || "";
+        const pricePerKg = prices[ing.name]?.[selectedBrand] || 0;
+        const cost = pricePerKg * (amount / 1000);
+        totalCost += cost;
+
+        row.innerHTML = `
+          <td>${ing.name}</td>
+          <td>${amount.toFixed(1)}</td>
+          <td>${ing.percent}%</td>
+          <td>
+            <select onchange="updateBrand(this, '${ing.name}', ${amount}, this.parentElement.nextElementSibling)">
+              ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
+            </select>
+          </td>
+          <td>${cost.toFixed(2)}</td>`;
+        ingTbody.appendChild(row);
+      });
+
+      const extraTbody = document.getElementById('extras-table').querySelector('tbody');
+      extraTbody.innerHTML = '';
+      recipe.extras.forEach((extra, idx) => {
+        const brands = Object.keys(prices[extra.name] || {});
+        const selectedBrand = brands[0] || "";
+        const pricePerKg = prices[extra.name]?.[selectedBrand] || 0;
+        const costPerItem = pricePerKg * (extra.perUnitGrams / 1000);
+        const totalExtraCost = costPerItem * itemsPerBatch;
+        totalCost += totalExtraCost;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${extra.name}</td>
+          <td><input type="number" value="${extra.perUnitGrams}" class="input-short" oninput="updateExtraGrams(${idx}, this.value)"></td>
+          <td>
+            <select onchange="updateBrand(this, '${extra.name}', ${extra.perUnitGrams}, this.parentElement.nextElementSibling)">
+              ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
+            </select>
+          </td>
+          <td>${costPerItem.toFixed(2)}</td>`;
+        extraTbody.appendChild(row);
+      });
+
+      document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+      document.getElementById('cost-per-item').textContent = (totalCost / itemsPerBatch).toFixed(2);
+      updateSuggestedPrice(totalCost, recipe);
+    }
+
+    function handleItemWeightChange() {
+      const recipe = recipes[document.getElementById('recipe-select').value];
+      recipe.itemWeightGrams = parseFloat(document.getElementById('item-weight').value) || 1;
+      handleRecipeChange();
+    }
+
+    function handleItemsChange() {
+      const items = parseFloat(document.getElementById('number-of-items').value) || 1;
+      const itemWeight = parseFloat(document.getElementById('item-weight').value) || 1;
+      document.getElementById('input-grams').value = (items * itemWeight).toFixed(1);
+      handleRecipeChange();
+    }
+
+    function updateBrand(selectEl, name, amount, costTd) {
+      const brand = selectEl.value;
+      const price = prices[name]?.[brand] || 0;
+      const cost = price * (amount / 1000);
+      costTd.textContent = cost.toFixed(2);
+      showPopup(`${name} price updated (${brand})`);
+      updateTotalCost();
+    }
+
+    function updateExtraGrams(index, newGrams) {
+      const recipe = recipes[document.getElementById('recipe-select').value];
+      recipe.extras[index].perUnitGrams = parseFloat(newGrams);
+      handleRecipeChange();
+    }
+
+    function updateTotalCost() {
+      let total = 0;
+      document.querySelectorAll('#ingredients-table tbody tr').forEach(row => {
+        total += parseFloat(row.cells[4].textContent) || 0;
+      });
+
+      const recipe = recipes[document.getElementById('recipe-select').value];
+      const itemsPerBatch = Math.max(1, parseFloat(document.getElementById('input-grams').value) / (recipe.itemWeightGrams || 1));
+      document.querySelectorAll('#extras-table tbody tr').forEach(row => {
+        const costPerItem = parseFloat(row.cells[3].textContent) || 0;
+        total += costPerItem * itemsPerBatch;
+      });
+
+      document.getElementById('total-cost').textContent = total.toFixed(2);
+      document.getElementById('number-of-items').value = itemsPerBatch.toFixed(0);
+      document.getElementById('cost-per-item').textContent = (total / itemsPerBatch).toFixed(2);
+      updateSuggestedPrice(total, recipe);
+    }
+
+    function totalExtraPercent(recipe) {
+      return recipe.ingredients.reduce((acc, i) => acc + (i.name.toLowerCase() === 'bread flour' ? 0 : i.percent), 0) / 100;
+    }
+
+    function updateSuggestedPrice(totalCost, recipe) {
+      const itemWeight = recipe.itemWeightGrams || 1;
+      const itemsPerBatch = Math.max(1, parseFloat(document.getElementById('input-grams').value) / itemWeight);
+      const elec = parseFloat(document.getElementById('electricity').value);
+      const water = parseFloat(document.getElementById('water').value);
+      const gas = parseFloat(document.getElementById('gas').value);
+      const days = parseFloat(document.getElementById('work-days').value);
+      const hours = parseFloat(document.getElementById('hours-day').value);
+      const wage = parseFloat(document.getElementById('hour-wage').value);
+      const dailyItems = parseFloat(document.getElementById('items-day').value);
+      const misc = parseFloat(document.getElementById('misc').value); // NEW
+      const markup = parseFloat(document.getElementById('markup').value);
+
+      const monthlyCost = elec + water + gas + (days * hours * wage) + misc; // include misc
+      const monthlyItems = days * dailyItems;
+      const overheadPerItem = monthlyCost / monthlyItems;
+      document.getElementById('overhead-per-item').textContent = overheadPerItem.toFixed(2);
+      document.getElementById('total-item-cost').textContent = (totalCost / itemsPerBatch + overheadPerItem).toFixed(2);
+
+      const suggestedPerItem = (totalCost / itemsPerBatch + overheadPerItem) * markup;
+      const suggestedTotal = suggestedPerItem * itemsPerBatch;
+      const profit = suggestedTotal - totalCost - (overheadPerItem * itemsPerBatch);
+
+      document.getElementById('suggested-price').textContent = suggestedPerItem.toFixed(2);
+      document.getElementById('suggested-total').textContent = suggestedTotal.toFixed(2);
+      document.getElementById('estimated-profit').textContent = profit.toFixed(2);
+    }
+
+    loadJSON('recipes.json', data => { recipes = data; populateRecipeSelect(); showPopup('Recipes loaded'); }, err => showPopup('Failed to load recipes'));
+    loadJSON('ingredientPrices.json', data => { prices = data; showPopup('Prices loaded'); }, err => showPopup('Failed to load prices'));
   </script>
-</body></html>
+</body>
+</html>
