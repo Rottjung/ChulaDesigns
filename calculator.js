@@ -211,7 +211,7 @@ function updateSuggestedPrice(totalCost, recipe) {
   const stb = document.getElementById('suggested-total-batch'); if (stb) stb.textContent = suggestedTotalBatch.toFixed(2);
 
   // Profit (requested): Suggested Total (Batch) – Total Ingredient Cost
-  const profit = suggestedTotalBatch - totalCost;
+  const profit = suggestedTotalBatch - totalBatchCost;
   const ep = document.getElementById('estimated-profit'); if (ep) ep.textContent = profit.toFixed(2);
 }
 
