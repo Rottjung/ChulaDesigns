@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,21 +35,9 @@
   <div class="header-container">
     <h1 class="header-title">-= BROOD =-</h1>
     <div class="header-subtitle">Bakery-Calculator</div>
-  </div>
+  </div><label for="recipe-select">Choose Recipe:</label> <select id="recipe-select" onchange="handleRecipeChange()"></select> <label>Item weight (g): <input type="number" id="item-weight" class="input-short" oninput="handleItemWeightChange()"> </label> <br />
 
-  <label for="recipe-select">Choose Recipe:</label>
-  <select id="recipe-select" onchange="handleRecipeChange()"></select>
-  <label>Item weight (g):
-    <input type="number" id="item-weight" class="input-short" oninput="handleItemWeightChange()">
-  </label>
-  <br />
-
-  <label for="input-type">Input Type:</label>
-  <select id="input-type" onchange="handleRecipeChange()">
-    <option value="dough">Total Dough Weight</option>
-    <option value="flour">Flour Only</option>
-  </select>
-  <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g
+<label for="input-type">Input Type:</label> <select id="input-type" onchange="handleRecipeChange()"> <option value="dough">Total Dough Weight</option> <option value="flour">Flour Only</option> </select> <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g
 
   <h3>Ingredients</h3>
   <table id="ingredients-table">
@@ -64,9 +51,7 @@
       </tr>
     </thead>
     <tbody></tbody>
-  </table>
-
-  <h3>Extras (per item)</h3>
+  </table>  <h3>Extras (per item)</h3>
   <table id="extras-table">
     <thead>
       <tr>
@@ -77,19 +62,11 @@
       </tr>
     </thead>
     <tbody></tbody>
-  </table>
-
-  <h2>Total Ingredient Cost: <span id="total-cost">0</span> THB</h2>
-
-  <p>Number of Items:
+  </table>  <h2>Total Ingredient Cost: <span id="total-cost">0</span> THB</h2>  <p>Number of Items:
     <input type="number" id="number-of-items" class="input-short" oninput="handleItemsChange()">
-  </p>
-
-  <p>
+  </p>  <p>
     <h2>Cost per Item: <span id="cost-per-item">0</span> THB</h2>
-  </p>
-
-  <div class="suggested-column">
+  </p>  <div class="suggested-column">
     <label>Electricity/month:
       <input type="number" id="electricity" value="3600" class="input-short" oninput="handleRecipeChange()"> THB
     </label>
@@ -117,19 +94,30 @@
     </label>
     <label>Markup multiplier:
       <input type="number" step="0.1" id="markup" value="2.5" class="input-short" oninput="handleRecipeChange()">
-    </label>
-    
-      <h2>Overhead per Item: <span id="overhead-per-item">0</span> THB</h2>
-      <h2>Total Item Cost (Ingredients + Overhead): <span id="total-item-cost">0</span> THB</h2>
-      <h2>Suggested Price per Item: <span id="suggested-price">0</span> THB</h2>
-    <!-- NEW batch totals -->
-      <h2>Total Overhead (Batch): <span id="overhead-batch">0</span> THB</h2>
-      <h2>Total Batch Cost (Ingredients + Overhead): <span id="total-batch-cost">0</span> THB</h2>
-      <h2>Suggested Total (Batch): <span id="suggested-total-batch">0</span> THB</h2>
-      <h2>Estimated Profit: <span id="estimated-profit">0</span> THB</h2>
-  </div>
+    </label><h2>Overhead per Item: <span id="overhead-per-item">0</span> THB</h2>
+<p>
+  <h2>Total Item Cost (Ingredients + Overhead): <span id="total-item-cost">0</span> THB</h2>
+</p>
+<!-- NEW batch totals -->
+<p>
+  <b>Total Overhead (Batch): <span id="overhead-batch">0</span> THB</b>
+</p>
+<p>
+  <b>Total Batch Cost (Ingredients + Overhead): <span id="total-batch-cost">0</span> THB</b>
+</p>
+<p>
+  <b>Suggested Total (Batch): <span id="suggested-total-batch">0</span> THB</b>
+</p>
+<!-- /NEW -->
+<h2>Suggested Price per Item: <span id="suggested-price">0</span> THB</h2>
+<p>
+  Suggested Total: <span id="suggested-total">0</span> THB
+</p>
+<p>
+  Estimated Profit: <span id="estimated-profit">0</span> THB
+</p>
 
-  <script>
+  </div>  <script>
     let recipes = [];
     let prices = {};
 
@@ -285,27 +273,36 @@
     }
 
     function updateSuggestedPrice(totalCost, recipe) {
-      const itemWeight = recipe.itemWeightGrams || 1;
-      const itemsPerBatch = Math.max(1, parseFloat(document.getElementById('input-grams').value) / itemWeight);
-      const elec = parseFloat(document.getElementById('electricity').value);
-      const water = parseFloat(document.getElementById('water').value);
-      const gas = parseFloat(document.getElementById('gas').value);
-      const days = parseFloat(document.getElementById('work-days').value);
-      const hours = parseFloat(document.getElementById('hours-day').value);
-      const wage = parseFloat(document.getElementById('hour-wage').value);
-      const dailyItems = parseFloat(document.getElementById('items-day').value);
-      const misc = parseFloat(document.getElementById('misc').value);
-      const markup = parseFloat(document.getElementById('markup').value);
+      // Helpers for safety
+      const num = (v) => {
+        const n = parseFloat(v);
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      const itemWeight = num((recipe && recipe.itemWeightGrams) || 1) || 1;
+      const gramsPlanned = num(document.getElementById('input-grams').value);
+      const itemsPerBatch = Math.max(1, gramsPlanned / itemWeight);
+
+      const elec = num(document.getElementById('electricity').value);
+      const water = num(document.getElementById('water').value);
+      const gas = num(document.getElementById('gas').value);
+      const days = num(document.getElementById('work-days').value);
+      const hours = num(document.getElementById('hours-day').value);
+      const wage = num(document.getElementById('hour-wage').value);
+      const dailyItems = num(document.getElementById('items-day').value);
+      const misc = num(document.getElementById('misc').value);
+      const markup = Math.max(0, num(document.getElementById('markup').value));
 
       const monthlyCost = elec + water + gas + (days * hours * wage) + misc;
-      const monthlyItems = days * dailyItems;
-      const overheadPerItem = monthlyCost / monthlyItems;
+      const monthlyItems = Math.max(1, days * dailyItems); // avoid divide-by-zero / NaN
 
-      // Per-item
+      const overheadPerItem = monthlyCost / monthlyItems;
       document.getElementById('overhead-per-item').textContent = overheadPerItem.toFixed(2);
+
+      // Per-item economics
       const totalPerItem = (totalCost / itemsPerBatch) + overheadPerItem;
       document.getElementById('total-item-cost').textContent = totalPerItem.toFixed(2);
-      const suggestedPerItem = totalPerItem * markup;
+      const suggestedPerItem = totalPerItem * (markup || 0);
       document.getElementById('suggested-price').textContent = suggestedPerItem.toFixed(2);
 
       // Batch totals
@@ -320,11 +317,13 @@
       const stb = document.getElementById('suggested-total-batch');
       if (stb) stb.textContent = suggestedTotalBatch.toFixed(2);
 
-      // Existing totals for reference
-      const suggestedTotal = suggestedPerItem * itemsPerBatch;
-      const profit = suggestedTotal - totalCost - batchOverhead;
-      document.getElementById('suggested-total').textContent = suggestedTotal.toFixed(2);
-      document.getElementById('estimated-profit').textContent = profit.toFixed(2);
+      // Legacy fields kept in sync
+      const suggestedTotal = suggestedTotalBatch;
+      const profit = suggestedTotalBatch - totalBatchCost; // revenue - total batch cost
+      const st = document.getElementById('suggested-total');
+      if (st) st.textContent = suggestedTotal.toFixed(2);
+      const ep = document.getElementById('estimated-profit');
+      if (ep) ep.textContent = profit.toFixed(2);
     }
 
     loadJSON('recipes.json',
@@ -335,6 +334,5 @@
       data => { prices = data; showPopup('Prices loaded'); },
       err => showPopup('Failed to load prices')
     );
-  </script>
-</body>
+  </script></body>
 </html>
