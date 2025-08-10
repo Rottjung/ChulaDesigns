@@ -3,6 +3,17 @@ window.recipes = [];
 window.prices = {};
 window.baseRecipesCache = [];
 
+// New: DB readiness gating
+let recipesReady = false;
+let pricesReady = false;
+let appInitialized = false;
+
+// New: brand selection cache (persists while page is open)
+const brandCache = {
+  ingredient: {}, // key: ingredient name -> brand
+  extra: {}       // key: extra name -> brand
+};
+
 function showPopup(message) {
   const popup = document.createElement('div');
   popup.className = 'popup';
@@ -22,9 +33,9 @@ function switchTab(which) {
 
 function loadJSON(path, success, fail) {
   fetch(path + '?cacheBust=' + new Date().getTime())
-    .then(r => { if (!r.ok) throw new Error('HTTP error'); return r.json(); })
+    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
     .then(data => success(data))
-    .catch(err => fail(err));
+    .catch(err => { if (fail) fail(err); });
 }
 
 function getUserRecipes() {
@@ -51,13 +62,21 @@ function populateRecipeSelect() {
   });
   if (recipes.length > 0) {
     select.selectedIndex = 0;
-    showPopup(`Auto-loaded: ${recipes[0].name}`);
+    showPopup(`Loaded: ${recipes[0].name}`);
     handleRecipeChange();
   }
 }
 
+// Ensure both DBs are ready before initializing UI with a recipe
+function tryInitializeApp() {
+  if (appInitialized || !recipesReady || !pricesReady) return;
+  appInitialized = true;
+  populateRecipeSelect();
+}
+
 // ===== Calculator logic =====
 function handleRecipeChange() {
+  if (!appInitialized) return; // guard until DBs loaded
   const recipe = recipes[document.getElementById('recipe-select').value];
   const inputType = document.getElementById('input-type').value;
   const grams = parseFloat(document.getElementById('input-grams').value);
@@ -77,17 +96,27 @@ function handleRecipeChange() {
     const row = document.createElement('tr');
     const amount = flourWeight * (ing.percent / 100);
     const brands = Object.keys(prices[ing.name] || {});
-    const pricePerKg = prices[ing.name]?.[brands[0]] || 0;
+
+    // Brand persistence for INGREDIENTS
+    let chosenBrand = brandCache.ingredient[ing.name];
+    if (!chosenBrand || !brands.includes(chosenBrand)) {
+      chosenBrand = brands[0] || "";
+      if (chosenBrand) brandCache.ingredient[ing.name] = chosenBrand;
+    }
+
+    const pricePerKg = prices[ing.name]?.[chosenBrand] || 0;
     const cost = pricePerKg * (amount / 1000);
     totalCost += cost;
+
+    const opts = brands.map(b => `<option value="${b}" ${b === chosenBrand ? 'selected' : ''}>${b}</option>`).join('');
 
     row.innerHTML = `
       <td>${ing.name}</td>
       <td>${amount.toFixed(1)}</td>
       <td>${ing.percent}%</td>
       <td>
-        <select onchange="updateBrand(this, '${ing.name}', ${amount}, this.parentElement.nextElementSibling)">
-          ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
+        <select onchange="updateBrand(this, 'ingredient', '${ing.name}', ${amount}, this.parentElement.nextElementSibling)">
+          ${opts}
         </select>
       </td>
       <td>${cost.toFixed(2)}</td>`;
@@ -98,18 +127,28 @@ function handleRecipeChange() {
   extraTbody.innerHTML = '';
   (recipe.extras || []).forEach((extra, idx) => {
     const brands = Object.keys(prices[extra.name] || {});
-    const pricePerKg = prices[extra.name]?.[brands[0]] || 0;
+
+    // Brand persistence for EXTRAS
+    let chosenBrand = brandCache.extra[extra.name];
+    if (!chosenBrand || !brands.includes(chosenBrand)) {
+      chosenBrand = brands[0] || "";
+      if (chosenBrand) brandCache.extra[extra.name] = chosenBrand;
+    }
+
+    const pricePerKg = prices[extra.name]?.[chosenBrand] || 0;
     const costPerItem = pricePerKg * (extra.perUnitGrams / 1000);
     const totalExtraCost = costPerItem * itemsPerBatch;
     totalCost += totalExtraCost;
+
+    const opts = brands.map(b => `<option value="${b}" ${b === chosenBrand ? 'selected' : ''}>${b}</option>`).join('');
 
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${extra.name}</td>
       <td><input type="number" value="${extra.perUnitGrams}" class="input-short" oninput="updateExtraGrams(${idx}, this.value)"></td>
       <td>
-        <select onchange="updateBrand(this, '${extra.name}', ${extra.perUnitGrams}, this.parentElement.nextElementSibling)">
-          ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
+        <select onchange="updateBrand(this, 'extra', '${extra.name}', ${extra.perUnitGrams}, this.parentElement.nextElementSibling)">
+          ${opts}
         </select>
       </td>
       <td>${costPerItem.toFixed(2)}</td>`;
@@ -134,12 +173,16 @@ function handleItemsChange() {
   handleRecipeChange();
 }
 
-function updateBrand(selectEl, name, amount, costTd) {
+// Update brand, persist to cache, and recompute the cell cost
+function updateBrand(selectEl, type, name, amount, costTd) {
   const brand = selectEl.value;
+  if (type === 'ingredient') brandCache.ingredient[name] = brand;
+  else brandCache.extra[name] = brand;
+
   const price = prices[name]?.[brand] || 0;
-  const cost = price * (amount / 1000);
+  const cost = price * (amount / 1000); // amount is grams (for extras it's grams per item => cost per item)
   costTd.textContent = cost.toFixed(2);
-  showPopup(`${name} price updated (${brand})`);
+  showPopup(`${name} → ${brand}`);
   updateTotalCost();
 }
 
@@ -184,12 +227,12 @@ function updateSuggestedPrice(totalCost, recipe) {
   const days = parseFloat(document.getElementById('work-days').value);
   const hours = parseFloat(document.getElementById('hours-day').value);
   const wage = parseFloat(document.getElementById('hour-wage').value);
-  const employees = parseFloat(document.getElementById('employees').value) || 1; // NEW
+  const employees = parseFloat(document.getElementById('employees')?.value || 1) || 1;
   const dailyItems = parseFloat(document.getElementById('items-day').value);
   const misc = parseFloat(document.getElementById('misc').value);
   const markup = parseFloat(document.getElementById('markup').value);
 
-  const monthlyCost = elec + water + gas + (days * hours * wage * employees) + misc; // UPDATED
+  const monthlyCost = elec + water + gas + (days * hours * wage * employees) + misc;
   const monthlyItems = days * dailyItems;
   const overheadPerItem = monthlyCost / monthlyItems;
 
@@ -210,19 +253,19 @@ function updateSuggestedPrice(totalCost, recipe) {
   const stb = document.getElementById('suggested-total-batch'); if (stb) stb.textContent = suggestedTotalBatch.toFixed(2);
 
   // Profit
-  const profit = suggestedTotalBatch - totalBatchCost; // FIXED
+  const profit = suggestedTotalBatch - totalBatchCost;
   const ep = document.getElementById('estimated-profit'); if (ep) ep.textContent = profit.toFixed(2);
 }
 
-// ===== Startup =====
+// ===== Startup (wait for BOTH DBs) =====
 loadJSON('recipes.json',
   data => {
     baseRecipesCache = data || [];
     const mine = getUserRecipes();
     recipes = mergeRecipes(baseRecipesCache, mine);
-    populateRecipeSelect();
-    showPopup('Recipes loaded');
+    recipesReady = true;
     document.dispatchEvent(new CustomEvent('recipesLoaded'));
+    tryInitializeApp();
   },
   () => showPopup('Failed to load recipes')
 );
@@ -230,8 +273,10 @@ loadJSON('recipes.json',
 loadJSON('ingredientPrices.json',
   data => {
     prices = data || {};
+    pricesReady = true;
     showPopup(`Prices loaded (${Object.keys(prices).length} items)`);
     document.dispatchEvent(new CustomEvent('pricesLoaded'));
+    tryInitializeApp();
   },
   () => showPopup('Failed to load prices')
 );
