@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brood Bakery Calculator</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
+    body { font-family: sans-serif; padding: 20px; }
     select, input { margin: 5px; }
     table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 6px; }
     .popup {
@@ -50,7 +50,6 @@
     <option value="dough">Total Dough Weight</option>
     <option value="flour">Flour Only</option>
   </select>
-  <br />
   <input type="number" id="input-grams" value="1000" oninput="handleRecipeChange()"> g
 
   <h3>Ingredients</h3>
@@ -321,11 +320,14 @@
       const stb = document.getElementById('suggested-total-batch');
       if (stb) stb.textContent = suggestedTotalBatch.toFixed(2);
 
-      // Existing totals for reference
-      const suggestedTotal = suggestedPerItem * itemsPerBatch;
-      const profit = suggestedTotal - totalCost - batchOverhead;
-      document.getElementById('suggested-total').textContent = suggestedTotal.toFixed(2);
-      document.getElementById('estimated-profit').textContent = profit.toFixed(2);
+      // Profit = Suggested Total (Batch) − Total Cost (ingredients + extras)
+      const profit = suggestedTotalBatch - totalCost;
+      const ep = document.getElementById('estimated-profit');
+      if (ep) ep.textContent = profit.toFixed(2);
+
+      // Keep legacy field in sync only if it exists
+      const st = document.getElementById('suggested-total');
+      if (st) st.textContent = suggestedTotalBatch.toFixed(2);
     }
 
     loadJSON('recipes.json',
