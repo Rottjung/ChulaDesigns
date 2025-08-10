@@ -118,18 +118,30 @@
     <label>Markup multiplier:
       <input type="number" step="0.1" id="markup" value="2.5" class="input-short" oninput="handleRecipeChange()">
     </label>
-
+    
+    <h2>Overhead per Item: <span id="overhead-per-item">0</span> THB</h2>
     <p>
-      <b>Overhead per Item: <span id="overhead-per-item">0</span> THB</b>
+      <h2>Total Item Cost (Ingredients + Overhead): <span id="total-item-cost">0</span> THB</h2>
+    </p>
+    <!-- NEW batch totals -->
+    <p>
+      <b>Total Overhead (Batch): <span id="overhead-batch">0</span> THB</b>
     </p>
     <p>
-      <b>Total Item Cost (Ingredients + Overhead): <span id="total-item-cost">0</span> THB</b>
+      <b>Total Batch Cost (Ingredients + Overhead): <span id="total-batch-cost">0</span> THB</b>
+    </p>
+    <p>
+      <b>Suggested Total (Batch): <span id="suggested-total-batch">0</span> THB</b>
+    </p>
+    <!-- /NEW -->
+    <h2>Suggested Price per Item: <span id="suggested-price">0</span> THB</h2>
+    <p>
+      Suggested Total: <span id="suggested-total">0</span> THB
+    </p>
+    <p>
+      Estimated Profit: <span id="estimated-profit">0</span> THB
     </p>
   </div>
-
-  <b>Suggested Price per Item: <span id="suggested-price">0</span> THB</b>
-  <p>Suggested Total: <span id="suggested-total">0</span> THB</p>
-  <p>Estimated Profit: <span id="estimated-profit">0</span> THB</p>
 
   <script>
     let recipes = [];
@@ -296,26 +308,47 @@
       const hours = parseFloat(document.getElementById('hours-day').value);
       const wage = parseFloat(document.getElementById('hour-wage').value);
       const dailyItems = parseFloat(document.getElementById('items-day').value);
-      const misc = parseFloat(document.getElementById('misc').value); // NEW
+      const misc = parseFloat(document.getElementById('misc').value);
       const markup = parseFloat(document.getElementById('markup').value);
 
-      const monthlyCost = elec + water + gas + (days * hours * wage) + misc; // include misc
+      const monthlyCost = elec + water + gas + (days * hours * wage) + misc;
       const monthlyItems = days * dailyItems;
       const overheadPerItem = monthlyCost / monthlyItems;
+
+      // Per-item
       document.getElementById('overhead-per-item').textContent = overheadPerItem.toFixed(2);
-      document.getElementById('total-item-cost').textContent = (totalCost / itemsPerBatch + overheadPerItem).toFixed(2);
-
-      const suggestedPerItem = (totalCost / itemsPerBatch + overheadPerItem) * markup;
-      const suggestedTotal = suggestedPerItem * itemsPerBatch;
-      const profit = suggestedTotal - totalCost - (overheadPerItem * itemsPerBatch);
-
+      const totalPerItem = (totalCost / itemsPerBatch) + overheadPerItem;
+      document.getElementById('total-item-cost').textContent = totalPerItem.toFixed(2);
+      const suggestedPerItem = totalPerItem * markup;
       document.getElementById('suggested-price').textContent = suggestedPerItem.toFixed(2);
+
+      // Batch totals
+      const batchOverhead = overheadPerItem * itemsPerBatch;
+      const totalBatchCost = totalCost + batchOverhead;
+      const suggestedTotalBatch = suggestedPerItem * itemsPerBatch;
+
+      const ob = document.getElementById('overhead-batch');
+      if (ob) ob.textContent = batchOverhead.toFixed(2);
+      const tbc = document.getElementById('total-batch-cost');
+      if (tbc) tbc.textContent = totalBatchCost.toFixed(2);
+      const stb = document.getElementById('suggested-total-batch');
+      if (stb) stb.textContent = suggestedTotalBatch.toFixed(2);
+
+      // Existing totals for reference
+      const suggestedTotal = suggestedPerItem * itemsPerBatch;
+      const profit = suggestedTotal - totalCost - batchOverhead;
       document.getElementById('suggested-total').textContent = suggestedTotal.toFixed(2);
       document.getElementById('estimated-profit').textContent = profit.toFixed(2);
     }
 
-    loadJSON('recipes.json', data => { recipes = data; populateRecipeSelect(); showPopup('Recipes loaded'); }, err => showPopup('Failed to load recipes'));
-    loadJSON('ingredientPrices.json', data => { prices = data; showPopup('Prices loaded'); }, err => showPopup('Failed to load prices'));
+    loadJSON('recipes.json',
+      data => { recipes = data; populateRecipeSelect(); showPopup('Recipes loaded'); },
+      err => showPopup('Failed to load recipes')
+    );
+    loadJSON('ingredientPrices.json',
+      data => { prices = data; showPopup('Prices loaded'); },
+      err => showPopup('Failed to load prices')
+    );
   </script>
 </body>
 </html>
