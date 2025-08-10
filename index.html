@@ -58,6 +58,8 @@
     <label>Hours/day: <input type="number" id="hours-day" value="12" class="input-short" oninput="handleRecipeChange()"></label>
     <label>Hourly wage: <input type="number" id="hour-wage" value="50" class="input-short" oninput="handleRecipeChange()"> THB</label>
     <label>Items/day: <input type="number" id="items-day" value="175" class="input-short" oninput="handleRecipeChange()"></label>
+    <!-- NEW: Misc between Items/day and Markup -->
+    <label>Misc/month: <input type="number" id="misc" value="0" class="input-short" oninput="handleRecipeChange()"> THB</label>
     <label>Markup multiplier: <input type="number" step="0.1" id="markup" value="2.5" class="input-short" oninput="handleRecipeChange()"></label>
     <p><h2>Overhead per Item: <span id="overhead-per-item">0</span> THB</p></h2>
     <p><h2>Total Item Cost (Ingredients + Overhead): <span id="total-item-cost">0</span> THB</p></h2>
@@ -228,9 +230,10 @@
       const hours = parseFloat(document.getElementById('hours-day').value);
       const wage = parseFloat(document.getElementById('hour-wage').value);
       const dailyItems = parseFloat(document.getElementById('items-day').value);
+      const misc = parseFloat(document.getElementById('misc').value); // NEW
       const markup = parseFloat(document.getElementById('markup').value);
 
-      const monthlyCost = elec + water + gas + (days * hours * wage);
+      const monthlyCost = elec + water + gas + (days * hours * wage) + misc; // include misc
       const monthlyItems = days * dailyItems;
       const overheadPerItem = monthlyCost / monthlyItems;
       document.getElementById('overhead-per-item').textContent = overheadPerItem.toFixed(2);
