@@ -1,4 +1,4 @@
-// Ingredients Editor: robust global functions
+// Ingredients Editor — same wiring pattern as Recipe Builder (no inline handlers)
 
 const USER_PRICES_KEY = 'brood_user_prices_v1';
 
@@ -44,9 +44,14 @@ function ie_renderTable() {
       <td>${r.ing}</td>
       <td>${r.brand}</td>
       <td>${Number(r.price).toFixed(2)}</td>
-      <td><button data-ing="${r.ing}" data-brand="${r.brand}" onclick="ie_delete(this)">Delete</button></td>
+      <td><button class="ie-del" data-ing="${r.ing}" data-brand="${r.brand}">Delete</button></td>
     </tr>
   `).join('');
+
+  // Wire delete buttons (like builder does per-row)
+  tbody.querySelectorAll('.ie-del').forEach(btn => {
+    btn.addEventListener('click', () => ie_delete(btn));
+  });
 }
 
 function ie_delete(btn) {
@@ -118,10 +123,23 @@ function ie_import(e) {
   reader.readAsText(file);
 }
 
-// Boot
-(function ie_boot() {
+// ---- Init (same approach as recipe builder) ----
+function ie_init() {
+  // Top-level buttons
+  document.getElementById('ie-add')?.addEventListener('click', ie_addOrUpdate);
+  document.getElementById('ie-export')?.addEventListener('click', ie_export);
+  document.getElementById('ie-import')?.addEventListener('change', ie_import);
+
+  // Render once data ready
   const tryInit = () => { ie_refreshDatalist(); ie_renderTable(); };
   if (window.basePricesCache && Object.keys(window.basePricesCache).length) tryInit();
   document.addEventListener('pricesLoaded', tryInit);
   document.addEventListener('userPricesUpdated', tryInit);
-})();
+}
+
+// Call like builder: on DOMContentLoaded, but also handle already-loaded case.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', ie_init);
+} else {
+  ie_init();
+}
