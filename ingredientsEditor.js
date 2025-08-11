@@ -1,4 +1,4 @@
-// Ingredients Editor: manages user price overrides merged with base DB.
+// Ingredients Editor: robust global functions
 
 const USER_PRICES_KEY = 'brood_user_prices_v1';
 
@@ -44,27 +44,24 @@ function ie_renderTable() {
       <td>${r.ing}</td>
       <td>${r.brand}</td>
       <td>${Number(r.price).toFixed(2)}</td>
-      <td><button data-ing="${r.ing}" data-brand="${r.brand}" class="ie-del">Delete</button></td>
+      <td><button data-ing="${r.ing}" data-brand="${r.brand}" onclick="ie_delete(this)">Delete</button></td>
     </tr>
   `).join('');
+}
 
-  // Wire delete buttons (affects user overrides only)
-  tbody.querySelectorAll('.ie-del').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const ing = btn.getAttribute('data-ing');
-      const brand = btn.getAttribute('data-brand');
-      const user = ie_getUserPrices();
-      if (user[ing] && user[ing][brand] != null) {
-        delete user[ing][brand];
-        if (Object.keys(user[ing]).length === 0) delete user[ing];
-        ie_setUserPrices(user);
-        ie_renderTable();
-        ie_refreshDatalist();
-      } else {
-        if (typeof showPopup === 'function') showPopup('That brand is from the base DB; create an override to change it.');
-      }
-    });
-  });
+function ie_delete(btn) {
+  const ing = btn.getAttribute('data-ing');
+  const brand = btn.getAttribute('data-brand');
+  const user = ie_getUserPrices();
+  if (user[ing] && user[ing][brand] != null) {
+    delete user[ing][brand];
+    if (Object.keys(user[ing]).length === 0) delete user[ing];
+    ie_setUserPrices(user);
+    ie_renderTable();
+    ie_refreshDatalist();
+  } else {
+    if (typeof showPopup === 'function') showPopup('That brand is from the base DB; create an override to change it.');
+  }
 }
 
 function ie_addOrUpdate() {
@@ -82,11 +79,9 @@ function ie_addOrUpdate() {
   user[ing][brand] = price;
   ie_setUserPrices(user);
 
-  // Update UI
   ie_renderTable();
   ie_refreshDatalist();
 
-  // Clear brand/price fields but keep ingredient for faster entry
   if (brandEl) brandEl.value = '';
   if (priceEl) priceEl.value = '';
 }
@@ -103,7 +98,6 @@ function ie_export() {
   URL.revokeObjectURL(url);
 }
 
-// Import
 function ie_import(e) {
   const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
@@ -124,21 +118,10 @@ function ie_import(e) {
   reader.readAsText(file);
 }
 
-// Robust init: works even if DOMContentLoaded already happened
-function ie_init() {
-  document.getElementById('ie-add')?.addEventListener('click', ie_addOrUpdate);
-  document.getElementById('ie-export')?.addEventListener('click', ie_export);
-  document.getElementById('ie-import')?.addEventListener('change', ie_import);
-
+// Boot
+(function ie_boot() {
   const tryInit = () => { ie_refreshDatalist(); ie_renderTable(); };
   if (window.basePricesCache && Object.keys(window.basePricesCache).length) tryInit();
   document.addEventListener('pricesLoaded', tryInit);
   document.addEventListener('userPricesUpdated', tryInit);
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', ie_init);
-} else {
-  // DOM is already ready
-  ie_init();
-}
+})();
