@@ -8,7 +8,7 @@ function ie_getUserPrices() {
 function ie_setUserPrices(obj) {
   localStorage.setItem(USER_PRICES_KEY, JSON.stringify(obj || {}));
   document.dispatchEvent(new CustomEvent('userPricesUpdated'));
-  showPopup('Saved ingredient prices');
+  if (typeof showPopup === 'function') showPopup('Saved ingredient prices');
 }
 
 function ie_merge(base, user) {
@@ -61,7 +61,7 @@ function ie_renderTable() {
         ie_renderTable();
         ie_refreshDatalist();
       } else {
-        showPopup('That brand is from the base DB; create an override to change it.');
+        if (typeof showPopup === 'function') showPopup('That brand is from the base DB; create an override to change it.');
       }
     });
   });
@@ -71,11 +71,11 @@ function ie_addOrUpdate() {
   const ingEl = document.getElementById('ie-ingredient');
   const brandEl = document.getElementById('ie-brand');
   const priceEl = document.getElementById('ie-price');
-  const ing = (ingEl.value || '').trim();
-  const brand = (brandEl.value || '').trim();
-  const price = parseFloat(priceEl.value);
+  const ing = (ingEl?.value || '').trim();
+  const brand = (brandEl?.value || '').trim();
+  const price = parseFloat(priceEl?.value);
 
-  if (!ing || !brand || isNaN(price)) { showPopup('Please fill ingredient, brand and price.'); return; }
+  if (!ing || !brand || isNaN(price)) { if (typeof showPopup === 'function') showPopup('Please fill ingredient, brand and price.'); return; }
 
   const user = ie_getUserPrices();
   if (!user[ing]) user[ing] = {};
@@ -87,8 +87,8 @@ function ie_addOrUpdate() {
   ie_refreshDatalist();
 
   // Clear brand/price fields but keep ingredient for faster entry
-  brandEl.value = '';
-  priceEl.value = '';
+  if (brandEl) brandEl.value = '';
+  if (priceEl) priceEl.value = '';
 }
 
 function ie_export() {
@@ -103,6 +103,7 @@ function ie_export() {
   URL.revokeObjectURL(url);
 }
 
+// Import
 function ie_import(e) {
   const file = e.target.files[0]; if (!file) return;
   const reader = new FileReader();
@@ -113,9 +114,9 @@ function ie_import(e) {
       ie_setUserPrices(obj);
       ie_renderTable();
       ie_refreshDatalist();
-      showPopup('Imported prices.');
+      if (typeof showPopup === 'function') showPopup('Imported prices.');
     } catch {
-      showPopup('Invalid JSON for prices.');
+      if (typeof showPopup === 'function') showPopup('Invalid JSON for prices.');
     } finally {
       e.target.value = '';
     }
@@ -123,8 +124,8 @@ function ie_import(e) {
   reader.readAsText(file);
 }
 
-// Wire up once DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+// Robust init: works even if DOMContentLoaded already happened
+function ie_init() {
   document.getElementById('ie-add')?.addEventListener('click', ie_addOrUpdate);
   document.getElementById('ie-export')?.addEventListener('click', ie_export);
   document.getElementById('ie-import')?.addEventListener('change', ie_import);
@@ -133,4 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.basePricesCache && Object.keys(window.basePricesCache).length) tryInit();
   document.addEventListener('pricesLoaded', tryInit);
   document.addEventListener('userPricesUpdated', tryInit);
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', ie_init);
+} else {
+  // DOM is already ready
+  ie_init();
+}
