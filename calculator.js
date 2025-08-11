@@ -2,6 +2,7 @@
 window.recipes = [];
 window.prices = {};
 window.baseRecipesCache = [];
+window.basePricesCache = {}; // base prices from ingredientPrices.json
 
 function showPopup(message) {
   const popup = document.createElement('div');
@@ -16,20 +17,18 @@ function showPopup(message) {
 function switchTab(which) {
   document.getElementById('tab-calculator').classList.toggle('active', which === 'calculator');
   document.getElementById('tab-builder').classList.toggle('active', which === 'builder');
+  document.getElementById('tab-ingredients').classList.toggle('active', which === 'ingredients');
   document.getElementById('panel-calculator').classList.toggle('active', which === 'calculator');
   document.getElementById('panel-builder').classList.toggle('active', which === 'builder');
+  document.getElementById('panel-ingredients').classList.toggle('active', which === 'ingredients');
 }
 
 function fetchJSON(path) {
   return fetch(path + '?cacheBust=' + new Date().getTime()).then(async (r) => {
     if (!r.ok) throw new Error(`HTTP ${r.status} for ${path}`);
     const txt = await r.text();
-    try {
-      return JSON.parse(txt);
-    } catch (e) {
-      console.error('JSON parse error for', path, e, txt.slice(0, 2000));
-      throw new Error(`Invalid JSON in ${path}: ${e.message}`);
-    }
+    try { return JSON.parse(txt); }
+    catch (e) { console.error('JSON parse error', path, e, txt.slice(0,1000)); throw e; }
   });
 }
 
@@ -41,30 +40,37 @@ function getUserRecipes() {
     return Array.isArray(arr) ? arr : [];
   } catch { return []; }
 }
-function setUserRecipes(arr) {
-  localStorage.setItem('brood_user_recipes', JSON.stringify(arr || []));
-}
+function setUserRecipes(arr) { localStorage.setItem('brood_user_recipes', JSON.stringify(arr || [])); }
 function mergeRecipes(base, user) { return [...user, ...base]; }
 
-// ===== Brand cache (persists across reloads) =====
+// ===== User prices (for merging with base) =====
+const USER_PRICES_KEY = 'brood_user_prices_v1';
+function getUserPrices() {
+  try { return JSON.parse(localStorage.getItem(USER_PRICES_KEY) || '{}') || {}; } catch { return {}; }
+}
+function setUserPrices(obj) {
+  localStorage.setItem(USER_PRICES_KEY, JSON.stringify(obj || {}));
+  document.dispatchEvent(new CustomEvent('userPricesUpdated'));
+}
+function mergePrices(base, user) {
+  const out = JSON.parse(JSON.stringify(base || {}));
+  Object.keys(user || {}).forEach(ing => {
+    if (!out[ing]) out[ing] = {};
+    Object.assign(out[ing], user[ing]);
+  });
+  return out;
+}
+
+// ===== Brand cache (persist across reloads) =====
 const BRAND_CACHE_KEY = 'brood_brand_cache_v1';
 function loadBrandCache() {
   try {
     const raw = localStorage.getItem(BRAND_CACHE_KEY);
     const obj = raw ? JSON.parse(raw) : {};
-    return {
-      ingredient: obj.ingredient || {},
-      extra: obj.extra || {},
-    };
-  } catch {
-    return { ingredient: {}, extra: {} };
-  }
+    return { ingredient: obj.ingredient || {}, extra: obj.extra || {} };
+  } catch { return { ingredient: {}, extra: {} }; }
 }
-function saveBrandCache() {
-  try {
-    localStorage.setItem(BRAND_CACHE_KEY, JSON.stringify(brandCache));
-  } catch {}
-}
+function saveBrandCache() { try { localStorage.setItem(BRAND_CACHE_KEY, JSON.stringify(brandCache)); } catch {} }
 const brandCache = loadBrandCache();
 
 function populateRecipeSelect() {
@@ -105,7 +111,7 @@ function handleRecipeChange() {
     const amount = flourWeight * (ing.percent / 100);
     const brands = Object.keys(prices[ing.name] || {});
 
-    // Preferred brand (persisted)
+    // brand persistence
     let chosenBrand = brandCache.ingredient[ing.name];
     if (!chosenBrand || !brands.includes(chosenBrand)) {
       chosenBrand = brands[0] || "";
@@ -116,24 +122,21 @@ function handleRecipeChange() {
     const cost = pricePerKg * (amount / 1000);
     totalCost += cost;
 
-    const selHtml = brands.map(b => `<option value="${b}">${b}</option>`).join('');
+    const rowSelect = `<select data-type="ingredient" data-name="${ing.name}" data-amount="${amount}">
+        ${brands.map(b => `<option value="${b}">${b}</option>`).join('')}
+      </select>`;
 
     row.innerHTML = `
       <td>${ing.name}</td>
       <td>${amount.toFixed(1)}</td>
       <td>${ing.percent}%</td>
-      <td>
-        <select data-type="ingredient" data-name="${ing.name}" data-amount="${amount}">
-          ${selHtml}
-        </select>
-      </td>
+      <td>${rowSelect}</td>
       <td>${cost.toFixed(2)}</td>`;
     ingTbody.appendChild(row);
 
-    // Set selected programmatically (more reliable than selected attr)
     const sel = row.querySelector('select');
     sel.value = chosenBrand;
-    sel.addEventListener('change', (e) => {
+    sel.addEventListener('change', () => {
       updateBrand(sel, 'ingredient', ing.name, amount, sel.parentElement.nextElementSibling);
     });
   });
@@ -142,7 +145,6 @@ function handleRecipeChange() {
   extraTbody.innerHTML = '';
   (recipe.extras || []).forEach((extra, idx) => {
     const brands = Object.keys(prices[extra.name] || {});
-
     let chosenBrand = brandCache.extra[extra.name];
     if (!chosenBrand || !brands.includes(chosenBrand)) {
       chosenBrand = brands[0] || "";
@@ -168,7 +170,7 @@ function handleRecipeChange() {
 
     const sel = row.querySelector('select');
     sel.value = chosenBrand;
-    sel.addEventListener('change', (e) => {
+    sel.addEventListener('change', () => {
       updateBrand(sel, 'extra', extra.name, extra.perUnitGrams, sel.parentElement.nextElementSibling);
     });
   });
@@ -191,7 +193,6 @@ function handleItemsChange() {
   handleRecipeChange();
 }
 
-// Update brand, persist to cache, and recompute the cell cost
 function updateBrand(selectEl, type, name, amount, costTd) {
   const brand = selectEl.value;
   if (type === 'ingredient') brandCache.ingredient[name] = brand;
@@ -199,7 +200,7 @@ function updateBrand(selectEl, type, name, amount, costTd) {
   saveBrandCache();
 
   const price = prices[name]?.[brand] || 0;
-  const cost = price * (amount / 1000); // amount is grams (for extras it's grams per item => cost per item)
+  const cost = price * (amount / 1000);
   costTd.textContent = cost.toFixed(2);
   showPopup(`${name} → ${brand}`);
   updateTotalCost();
@@ -255,14 +256,12 @@ function updateSuggestedPrice(totalCost, recipe) {
   const monthlyItems = days * dailyItems;
   const overheadPerItem = monthlyCost / monthlyItems;
 
-  // Per-item
   document.getElementById('overhead-per-item').textContent = overheadPerItem.toFixed(2);
   const totalPerItem = (totalCost / itemsPerBatch) + overheadPerItem;
   document.getElementById('total-item-cost').textContent = totalPerItem.toFixed(2);
   const suggestedPerItem = totalPerItem * markup;
   document.getElementById('suggested-price').textContent = suggestedPerItem.toFixed(2);
 
-  // Batch totals
   const batchOverhead = overheadPerItem * itemsPerBatch;
   const totalBatchCost = totalCost + batchOverhead;
   const suggestedTotalBatch = suggestedPerItem * itemsPerBatch;
@@ -271,20 +270,23 @@ function updateSuggestedPrice(totalCost, recipe) {
   const tbc = document.getElementById('total-batch-cost'); if (tbc) tbc.textContent = totalBatchCost.toFixed(2);
   const stb = document.getElementById('suggested-total-batch'); if (stb) stb.textContent = suggestedTotalBatch.toFixed(2);
 
-  // Profit
   const profit = suggestedTotalBatch - totalBatchCost;
   const ep = document.getElementById('estimated-profit'); if (ep) ep.textContent = profit.toFixed(2);
 }
 
-// ===== Startup: load BOTH DBs first =====
+// ===== Startup: load BOTH DBs, merge prices with user overrides =====
 Promise.all([ fetchJSON('recipes.json'), fetchJSON('ingredientPrices.json') ])
   .then(([recData, priceData]) => {
     baseRecipesCache = recData || [];
     const mine = getUserRecipes();
     recipes = mergeRecipes(baseRecipesCache, mine);
-    prices = priceData || {};
+
+    window.basePricesCache = priceData || {};
+    prices = mergePrices(basePricesCache, getUserPrices());
+
     showPopup(`Prices loaded (${Object.keys(prices).length} items)`);
     populateRecipeSelect();
+
     document.dispatchEvent(new CustomEvent('recipesLoaded'));
     document.dispatchEvent(new CustomEvent('pricesLoaded'));
   })
@@ -293,3 +295,9 @@ Promise.all([ fetchJSON('recipes.json'), fetchJSON('ingredientPrices.json') ])
     if (/recipes\.json/.test(String(err))) showPopup('Failed to load recipes');
     if (/ingredientPrices\.json/.test(String(err))) showPopup('Failed to load prices');
   });
+
+// React to editor updates of user prices (live merge without reload)
+document.addEventListener('userPricesUpdated', () => {
+  prices = mergePrices(basePricesCache, getUserPrices());
+  handleRecipeChange();
+});
