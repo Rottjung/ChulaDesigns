@@ -106,10 +106,6 @@
       {
         "name": "Unsalted butter",
         "percent": 25
-      },
-      {  
-        "name": "Starter",
-        "percent": 20
       }
     ],
     "extras": []
@@ -201,5 +197,90 @@
         "perUnitGrams": 15
       }
     ]
+  },
+  {
+    "name": "Amaretti cookies",
+    "itemWeightGrams": 15,
+    "ingredients": [
+      {
+        "name": "Almond Flour",
+        "percent": 100
+      },
+      {
+        "name": "White sugar",
+        "percent": 70
+      },
+      {
+        "name": "Eggs",
+        "percent": 2
+      }
+    ],
+    "extras": []
+  },
+  {
+    "name": "Chocolate cake",
+    "itemWeightGrams": 100,
+    "ingredients": [
+      {
+        "name": "Chocolate",
+        "percent": 375
+      },
+      {
+        "name": "Unsalted butter",
+        "percent": 291.6
+      },
+      {
+        "name": "White sugar",
+        "percent": 375
+      },
+      {
+        "name": "Eggs",
+        "percent": 500
+      },
+      {
+        "name": "Bread flour",
+        "percent": 100
+      }
+    ],
+    "extras": []
+  },
+  {
+    "name": "Shokupan",
+    "itemWeightGrams": 750,
+    "ingredients": [
+      {
+        "name": "Bread flour",
+        "percent": 100
+      },
+      {
+        "name": "Water",
+        "percent": 20
+      },
+      {
+        "name": "Milk",
+        "percent": 30
+      },
+      {
+        "name": "White sugar",
+        "percent": 6
+      },
+      {
+        "name": "Salt",
+        "percent": 2
+      },
+      {
+        "name": "Unsalted butter",
+        "percent": 10
+      },
+      {
+        "name": "Bread flour",
+        "percent": 0.02
+      },
+      {
+        "name": "Water",
+        "percent": 0.123
+      }
+    ],
+    "extras": []
   }
 ]
