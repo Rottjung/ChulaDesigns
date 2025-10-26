@@ -242,7 +242,7 @@
   },
   {
     "name": "Chocolate cake",
-    "itemWeightGrams": 100,
+    "itemWeightGrams": 1000,
     "ingredients": [
       {
         "name": "Chocolate",
