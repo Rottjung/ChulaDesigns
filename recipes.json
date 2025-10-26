@@ -80,6 +80,29 @@
     ]
   },
   {
+      "name": "FOCACCIA"
+      "itemWeightGrams": 500
+      "ingredients":[
+          {
+            "name": "Bread flour",
+            "percent": 100
+          },
+          {
+              "name": "Water",
+              "percent": 60
+          },
+          {
+              "name": "Olive oil",
+              "percent": 10
+          },
+          {
+              "name": "Salt",
+              "percent": 2
+          }
+      ],
+      "extras": []
+  },
+  {
     "name": "Brussels Waffles",
     "itemWeightGrams": "20",
     "ingredients": [
@@ -223,19 +246,19 @@
     "ingredients": [
       {
         "name": "Chocolate",
-        "percent": 375
+        "percent": 750
       },
       {
         "name": "Unsalted butter",
-        "percent": 291.6
+        "percent": 566.7
       },
       {
         "name": "White sugar",
-        "percent": 375
+        "percent": 750
       },
       {
         "name": "Eggs",
-        "percent": 500
+        "percent": 1100
       },
       {
         "name": "Bread flour",
