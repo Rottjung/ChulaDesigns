@@ -80,7 +80,7 @@
     ]
   },
   {
-      "name": "FOCACCIA",
+      "name": "Sourdough FOCACCIA",
       "itemWeightGrams": 500,
       "ingredients":[
           {
@@ -261,7 +261,7 @@
         "percent": 1100
       },
       {
-        "name": "Bread flour",
+        "name": "All purpose flour",
         "percent": 100
       }
     ],
