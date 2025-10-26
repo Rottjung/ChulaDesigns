@@ -80,8 +80,8 @@
     ]
   },
   {
-      "name": "FOCACCIA"
-      "itemWeightGrams": 500
+      "name": "FOCACCIA",
+      "itemWeightGrams": 500,
       "ingredients":[
           {
             "name": "Bread flour",
