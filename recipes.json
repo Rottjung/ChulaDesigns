@@ -268,7 +268,7 @@
     "extras": []
   },
   {
-    "name": "Shokupan",
+    "name": "Sourdough Shokupan",
     "itemWeightGrams": 750,
     "ingredients": [
       {
@@ -297,11 +297,11 @@
       },
       {
         "name": "Bread flour",
-        "percent": 0.02
+        "percent": 2.5
       },
       {
         "name": "Water",
-        "percent": 0.123
+        "percent": 12.4
       }
     ],
     "extras": []
