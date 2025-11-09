@@ -92,6 +92,10 @@
               "percent": 60
           },
           {
+              "name": "Starter",
+              "percent": 20
+          },
+          {
               "name": "Olive oil",
               "percent": 10
           },
